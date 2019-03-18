@@ -14,8 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+//import com.theartofdev.edmodo.cropper.CropImage;
+//import com.theartofdev.edmodo.cropper.CropImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -45,33 +45,33 @@ public class SetupActivity extends AppCompatActivity {
                         Toast.makeText(SetupActivity.this,"Permission Denied", Toast.LENGTH_LONG).show();
                         ActivityCompat.requestPermissions(SetupActivity.this ,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
                     }
-                    else{
-                        CropImage.activity()
-                                .setGuidelines(CropImageView.Guidelines.ON)
-                                .start(SetupActivity.this);
-                    }
+//                    else{
+//                        CropImage.activity()
+//                                .setGuidelines(CropImageView.Guidelines.ON)
+//                                .start(SetupActivity.this);
+//                    }
 
             }
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-
-                mainImageURI = result.getUri();
-                setupImage.setImageURI(mainImageURI);
-
-
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-
-                Exception error = result.getError();
-
-            }
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            if (resultCode == RESULT_OK) {
+//
+//                mainImageURI = result.getUri();
+//                setupImage.setImageURI(mainImageURI);
+//
+//
+//            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+//
+//                Exception error = result.getError();
+//
+//            }
+//        }
+//    }
 }
