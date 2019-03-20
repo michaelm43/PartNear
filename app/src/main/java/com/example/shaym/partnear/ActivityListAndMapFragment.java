@@ -55,25 +55,19 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_activity_list, container, false);
-        //mActivityListRecyclerView = view.findViewById(R.id.activity_list_recycler_view);
+        View view = inflater.inflate(R.layout.fragment_activity_list_and_map, container, false);
+        mActivityListRecyclerView = view.findViewById(R.id.activity_list_recycler_view);
         mMapView = view.findViewById(R.id.activity_list_map);
 
-        if(mMapView != null)
-        {
-            mMapView.onCreate(null);
-            mMapView.onResume();
-            mMapView.getMapAsync(this);
-        }
-        //initActivityRecyclerView();
+        initActivityRecyclerView();
         initGoogleMap(savedInstanceState);
 
         return view;
     }
 
     private void initGoogleMap(Bundle savedInstanceState){
-        // *** IMPORTANT ***
-        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+        // * IMPORTANT *
+        // MapView requires that the Bundle you pass contain ONLY MapView SDK
         // objects or sub-Bundles.
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {

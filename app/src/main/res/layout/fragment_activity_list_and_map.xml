@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/White">
+    tools:context=".ActivityListAndMapFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,33 +21,24 @@
 
         </android.support.v7.widget.RecyclerView>
 
-        <RelativeLayout
-            android:id="@+id/map_container"
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/activity_list_map"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="50">
-
-            <com.google.android.gms.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/activity_list_map"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:apiKey="@string/google_maps_api_key"/>
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-        </RelativeLayout>
+            android:layout_height="match_parent"
+            android:layout_weight="50" />
 
 
     </LinearLayout>
 
     <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
+    android:id="@+id/progressBar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-</RelativeLayout>
+</FrameLayout>

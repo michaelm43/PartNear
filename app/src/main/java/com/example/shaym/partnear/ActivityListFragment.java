@@ -3,6 +3,7 @@ package com.example.shaym.partnear;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.location.Location;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
@@ -35,6 +36,8 @@ import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
 import com.example.shaym.partnear.Logic.Activity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -47,6 +50,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -82,6 +86,8 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     private Context context;
 
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
@@ -103,8 +109,30 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
         context = container.getContext();
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+
         return view;
     }
+
+    private void getLastKnownLocation() {
+        Log.d(TAG, "getLastKnownLocation: called.");
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<android.location.Location>() {
+            @Override
+            public void onComplete(@NonNull Task<android.location.Location> task) {
+                if (task.isSuccessful()) {
+                    Location location = task.getResult();
+                    GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    Log.d(TAG, "onComplete: latitude: " + geoPoint.getLatitude());
+                    Log.d(TAG, "onComplete: longitude: " + geoPoint.getLongitude());
+                }
+            }
+        });
+
+    }
+
     private boolean checkMapServices(){
         if(isServicesOK()){
             if(isMapsEnabled()){
@@ -149,6 +177,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
             getActivities();
+            getLastKnownLocation();
         } else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -201,6 +230,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
                     getActivities(); // if accepted the GPS dialog
+                    getLastKnownLocation();
                 }
                 else{
                     getLocationPermission();
@@ -219,10 +249,11 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     @Override
     public void onResume() {
         super.onResume();
-        getActivities();
         if(checkMapServices()){
-            if(mLocationPermissionGranted)
+            if(mLocationPermissionGranted) {
                 getActivities();
+                getLastKnownLocation();
+            }
             else
                 getLocationPermission();
         }
