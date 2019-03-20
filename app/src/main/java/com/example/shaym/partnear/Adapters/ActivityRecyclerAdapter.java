@@ -33,7 +33,7 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ((ViewHolder)holder).activityType.setText(activities.get(position).getType());
+        ((ViewHolder)holder).activityType.setText(activities.get(position).getActivityName());
     }
 
     @Override

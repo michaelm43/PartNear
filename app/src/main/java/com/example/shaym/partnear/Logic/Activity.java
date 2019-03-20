@@ -7,40 +7,35 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Activity implements Parcelable {
-    private String type;
+    private String activityName;
     private String activityID;
-    private User manager;
+    private Upload manager;
     private User[] participants;
 
     private int slots;
-    private Date startTime;
+    private String startTime;       //TODO change to Date?
     private Date endTime;
     private String location;
 
-    public Activity(String type, String activityID, User manager, int slots, Date startTime, Date endTime, String location) {
-        this.type = type;
-        this.activityID = activityID;
+    public Activity(String activityName, Upload manager, String startTime) {
+        this.activityName = activityName;
+//        this.activityID = activityID;
         this.manager = manager;
         this.participants = new User[slots];
-        this.slots = slots;
+//        this.slots = slots;
         this.startTime = startTime;
-        this.endTime = endTime;
-        this.location = location;
+//        this.location = location;
     }
 
-    public Activity(String type) {
-        this.type = type;
+    public Activity(String activityName) {
+        this.activityName = activityName;
     }
 
     protected Activity(Parcel in) {
-        this.type = in.readString();
+        this.activityName = in.readString();
         this.activityID = in.readString();
     }
 
-    public Activity()
-    {
-
-    }
 
     public static final Creator<Activity> CREATOR = new Creator<Activity>() {
         @Override
@@ -58,7 +53,7 @@ public class Activity implements Parcelable {
         this.slots = slots;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
@@ -66,11 +61,11 @@ public class Activity implements Parcelable {
         this.endTime = endTime;
     }
 
-    public String getType() {
-        return type;
+    public String getActivityName() {
+        return activityName;
     }
 
-    public User getManager() {
+    public Upload getManager() {
         return manager;
     }
 
@@ -82,7 +77,7 @@ public class Activity implements Parcelable {
         return slots;
     }
 
-    public Date getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
@@ -121,7 +116,7 @@ public class Activity implements Parcelable {
     @Override
     public String toString() {
         return "Activity{" +
-                "title='" + this.type + '\'' +
+                "title='" + this.activityName + '\'' +
                 ", activity_id='" + this.activityID + '\'' +
                 '}';
     }
@@ -131,7 +126,7 @@ public class Activity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.type);
+        dest.writeString(this.activityName);
         dest.writeString(this.activityID);
     }
 }

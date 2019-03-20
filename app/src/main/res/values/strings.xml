@@ -55,4 +55,8 @@
     <string name="name_anonymous">anonymous</string>
     <string name="no_phone_number">No phone number</string>
     <string name="default_picture">default</string>
+    
+    <string name="enter_event_name">Enter event name</string>
+    <string name="save_event_button">Save event</string>
+    <string name="cancel_event_button">Cancel event</string>
 </resources>

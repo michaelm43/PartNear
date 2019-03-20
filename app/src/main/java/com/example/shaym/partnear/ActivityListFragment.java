@@ -1,6 +1,5 @@
 package com.example.shaym.partnear;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.support.v4.app.Fragment;
@@ -15,16 +14,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -35,12 +29,9 @@ import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
 import com.example.shaym.partnear.Logic.Activity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -56,7 +47,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.example.shaym.partnear.Util.Constants.ERROR_DIALOG_REQUEST;
-import static com.example.shaym.partnear.Util.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.example.shaym.partnear.Util.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.example.shaym.partnear.Util.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
@@ -93,9 +83,10 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
         mProgressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
-        getActivity().findViewById(R.id.fab_create_activity).setOnClickListener(this);
+        getActivity().findViewById(R.id.fab_create_activity).setOnClickListener(this);       //Create activity button
 
-        getActivity().findViewById(R.id.fab_map).setOnClickListener(this);
+
+        getActivity().findViewById(R.id.fab_map).setOnClickListener(this);              //Open map button
 
         mDb = FirebaseFirestore.getInstance();
 
@@ -239,20 +230,32 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         //startActivity(intent);
     }
 
-    private void newActivityDialog(){
+    /*private void newActivityDialog(){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Enter a Activity name");
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogLayout = inflater.inflate(R.layout.fragment_create_activity, null);
+        builder.setView(dialogLayout);
 
-        final EditText input = new EditText(context);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
+        builder.setTitle("Create activity");
+
+        final EditText activityName = (EditText)dialogLayout.findViewById(R.id.et_event_name);
+        final EditText activityDate = (EditText)dialogLayout.findViewById(R.id.time_text);
+        activityDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        //final EditText input = new EditText(context);
+       // input.setInputType(InputType.TYPE_CLASS_TEXT);
+       // builder.setView(input);
 
         builder.setPositiveButton("CREATE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(!input.getText().toString().equals("")){
-                    buildNewActivity(input.getText().toString());
+                if(!activityName.getText().toString().equals("")){
+                    buildNewActivity(activityName.getText().toString());
                 }
                 else {
                     Toast.makeText(context, "Enter an activity name", Toast.LENGTH_SHORT).show();
@@ -267,7 +270,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         });
 
         builder.show();
-    }
+    }*/
 
     private void getActivities(){
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -305,7 +308,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         });
     }
 
-    private void buildNewActivity(String type){
+   /*private void buildNewActivity(String type){
 
         final Activity activity = new Activity(type);
 
@@ -333,7 +336,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 }
             }
         });
-    }
+    }*/
 
     private void showDialog(){
         mProgressBar.setVisibility(View.VISIBLE);
@@ -356,7 +359,11 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         switch (view.getId()){
 
             case R.id.fab_create_activity:{
-                newActivityDialog();
+                System.out.println("************************************************************************");
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragmentContainer, new CreateActivityFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();
                 break;
             }
             case R.id.fab_map:{
