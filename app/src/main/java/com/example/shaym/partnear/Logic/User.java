@@ -9,13 +9,21 @@ public class User implements Parcelable {
     private String userID;
     private String phone;
     private String avatar;
+    private int age;
+    private String gender;
 
-    public User(String name, String email, String userID, String phone, String avatar) {
+
+    public User(){
+        //empty constructor
+    }
+
+    public User(String name, String email,String userID ,String phone, String avatar,String gender) {
         this.name = name;
         this.email = email;
         this.userID = userID;
         this.phone = phone;
         this.avatar = avatar;
+        this.gender = gender;
     }
 
     protected User(Parcel in) {
@@ -24,6 +32,7 @@ public class User implements Parcelable {
         userID = in.readString();
         phone = in.readString();
         avatar = in.readString();
+        gender = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -58,6 +67,11 @@ public class User implements Parcelable {
         return avatar;
     }
 
+    public String getGender() { return gender; }
+
+    public void setAvatar(String avatar) { this.avatar = avatar; }
+
+
     @Override
     public int describeContents() { return 0; }
 
@@ -65,8 +79,9 @@ public class User implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(email);
-        dest.writeString(userID);
+        //dest.writeString(userID);
         dest.writeString(phone);
         dest.writeString(avatar);
+        dest.writeString(gender);
     }
 }
