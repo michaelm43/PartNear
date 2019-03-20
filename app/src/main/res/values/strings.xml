@@ -4,6 +4,24 @@
     <string name="action_settings_text">Account Settings</string>
     <string name="action_logout_text">Logout</string>
 
+    <!-- Register strings -->
+    <string name="radio_male">Male</string>
+    <string name="radio_female">Female</string>
+    <string name="enter_phone_number">Enter phone number</string>
+    <string name="enter_date">Enter date</string>
+    <string name="enter_password">Enter password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="enter_email">Email</string>
+    <string name="enter_last_name">Enter last name</string>
+    <string name="enter_first_name">Enter first name</string>
+
+    <!-- Database registration-->
+    <string name="database_lastName">last_name</string>
+    <string name="database_firstName">first_name</string>
+    <string name="database_age">age</string>
+    <string name="database_gender">gender</string>
+    
+    
     <!-- Firestore Strings -->
     <string name="collection_users">Users</string>
     <string name="collection_activities">Activities</string>
@@ -30,4 +48,9 @@
     <string name="action_leave_chatroom">Leave chatroom</string>
     <string name="action_chatroom_user_list">User list</string>
     <string name="action_profile">Profile</string>
+    <string name="name">Name:</string>
+    <string name="phone_number">Phone number:</string>
+    <string name="name_anonymous">anonymous</string>
+    <string name="no_phone_number">No phone number</string>
+    <string name="default_picture">default</string>
 </resources>
