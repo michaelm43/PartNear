@@ -1,4 +1,6 @@
 <resources>
+    <string name="google_maps_api_key">AIzaSyCVj49KxUMf3QeBssn1zrLxE3oTAQ-OKR4</string>
+
     <string name="app_name">PartNear</string>
     <string name="action_search_text">Search</string>
     <string name="action_settings_text">Account Settings</string>
@@ -31,7 +33,7 @@
 
     <!-- Intent extras -->
     <string name="intent_activity">intent_activity</string>
-    <string name="intent_user_list">intent_user_list</string>
+    <string name="intent_activity_list">intent_activity_list</string>
     <string name="intent_user_locations">intent_user_locations</string>
     <string name="intent_location">intent_location</string>
 
@@ -40,7 +42,7 @@
 
 
     <!-- Fragments Names -->
-    <string name="fragment_user_list">User List</string>
+    <string name="fragment_activity_list">Activity List</string>
     <string name="fragment_image_list">Image List</string>
 
     <!-- Other Strings -->
