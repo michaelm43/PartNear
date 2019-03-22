@@ -12,7 +12,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -29,11 +27,9 @@ import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
 import com.example.shaym.partnear.Logic.Activity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -59,7 +55,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     private ProgressBar mProgressBar;
 
     //vars
-    private ArrayList<Activity> activities = new ArrayList<>();
+    private ArrayList<Activity> activities_list = new ArrayList<>();
     private Set<String> activitiesIDs = new HashSet<>();
     private ActivityRecyclerAdapter activityRecyclerAdapter;
     private RecyclerView activityRecyclerView;
@@ -94,8 +90,26 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
         context = container.getContext();
 
+
+
+        mDb.collection(getString(R.string.collection_activities)).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
+                    if(doc.getType() == DocumentChange.Type.ADDED){//TODO fix dont do it every time or clean before?
+                        Activity activity = doc.getDocument().toObject(Activity.class);
+                        activities_list.add(activity);
+
+                        activityRecyclerAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+
+
         return view;
     }
+
     private boolean checkMapServices(){
         if(isServicesOK()){
             if(isMapsEnabled()){
@@ -139,7 +153,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            getActivities();
+            //getActivities();
         } else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -191,7 +205,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
-                    getActivities(); // if accepted the GPS dialog
+                    //getActivities(); // if accepted the GPS dialog
                 }
                 else{
                     getLocationPermission();
@@ -202,18 +216,20 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     }
 
     private void initActivityRecyclerView(){
-        activityRecyclerAdapter = new ActivityRecyclerAdapter(activities, this);
-        activityRecyclerView.setAdapter(activityRecyclerAdapter);
+        activityRecyclerAdapter = new ActivityRecyclerAdapter(activities_list, this);
         activityRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        activityRecyclerView.setAdapter(activityRecyclerAdapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getActivities();
+        setVisible();
+        //getActivities();
         if(checkMapServices()){
             if(mLocationPermissionGranted)
-                getActivities();
+                //getActivities();
+                System.out.print("");
             else
                 getLocationPermission();
         }
@@ -221,122 +237,26 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     @Override
     public void onActivitySelected(int position) {
-        navActivityActivity(activities.get(position));
+        navActivityActivity(activities_list.get(position));
     }
 
     private void navActivityActivity(Activity activity){
-        Intent intent = new Intent(context, ActivityActivity.class);
-        intent.putExtra(getString(R.string.intent_activity), activity);
-        //startActivity(intent);
+        setInvisible();
+        ActivityDetailFragment fragment = new ActivityDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("activity",activity);
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragmentContainer, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+
+        //        Intent intent = new Intent(context, ActivityActivity.class);
+//        intent.putExtra(getString(R.string.intent_activity));
+//        startActivity(intent);
     }
 
-    /*private void newActivityDialog(){
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View dialogLayout = inflater.inflate(R.layout.fragment_create_activity, null);
-        builder.setView(dialogLayout);
-
-        builder.setTitle("Create activity");
-
-        final EditText activityName = (EditText)dialogLayout.findViewById(R.id.et_event_name);
-        final EditText activityDate = (EditText)dialogLayout.findViewById(R.id.time_text);
-        activityDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-        //final EditText input = new EditText(context);
-       // input.setInputType(InputType.TYPE_CLASS_TEXT);
-       // builder.setView(input);
-
-        builder.setPositiveButton("CREATE", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(!activityName.getText().toString().equals("")){
-                    buildNewActivity(activityName.getText().toString());
-                }
-                else {
-                    Toast.makeText(context, "Enter an activity name", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }*/
-
-    private void getActivities(){
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        mDb.setFirestoreSettings(settings);
-
-        CollectionReference activitiesCollection = mDb
-                .collection(getString(R.string.collection_activities));
-
-        activityEventListener = activitiesCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                Log.d(TAG, "onEvent: called.");
-
-                if (e != null) {
-                    Log.e(TAG, "onEvent: Listen failed.", e);
-                    return;
-                }
-
-                if(queryDocumentSnapshots != null){
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-
-                        Activity activity = doc.toObject(Activity.class);
-                        if(!activitiesIDs.contains(activity.getActivityID())){
-                            activitiesIDs.add(activity.getActivityID());
-                            activities.add(activity);
-                        }
-                    }
-                    Log.d(TAG,"onEvent: number of chatrooms: " + activities.size());
-                    activityRecyclerAdapter.notifyDataSetChanged();
-                }
-
-            }
-        });
-    }
-
-   /*private void buildNewActivity(String type){
-
-        final Activity activity = new Activity(type);
-
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        mDb.setFirestoreSettings(settings);
-
-        DocumentReference newActivityRef = mDb
-                .collection(getString(R.string.collection_activities))
-                .document();
-
-        activity.setActivityID(newActivityRef.getId());
-
-        newActivityRef.set(activity).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                hideDialog();
-
-                if(task.isSuccessful()){
-                    //navActivityActivity(activity);
-                }else{
-                    View parentLayout = getView().findViewById(android.R.id.content);
-                    Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }*/
 
     private void showDialog(){
         mProgressBar.setVisibility(View.VISIBLE);
@@ -354,12 +274,22 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         }
     }
 
+    public void setInvisible(){
+        getActivity().findViewById(R.id.fab_create_activity).setVisibility(View.INVISIBLE);
+        getActivity().findViewById(R.id.fab_map).setVisibility(View.INVISIBLE);
+    }
+
+    public void setVisible(){
+        getActivity().findViewById(R.id.fab_create_activity).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.fab_map).setVisibility(View.VISIBLE);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
 
             case R.id.fab_create_activity:{
-                System.out.println("************************************************************************");
+                setInvisible();
                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainer, new CreateActivityFragment());
                 transaction.addToBackStack(null);
@@ -367,9 +297,10 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 break;
             }
             case R.id.fab_map:{
+                setInvisible();
                 ActivityListAndMapFragment fragment = ActivityListAndMapFragment.newInstance();
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList(getString(R.string.intent_activity_list), activities);
+                bundle.putParcelableArrayList(getString(R.string.intent_activity_list), activities_list);
                 fragment.setArguments(bundle);
 
                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
