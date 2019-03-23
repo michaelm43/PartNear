@@ -4,18 +4,21 @@ import android.os.Parcelable;
 
 import java.util.Date;
 import android.os.Parcel;
-import android.os.Parcelable;
+
+import com.google.firebase.firestore.GeoPoint;
 
 public class Activity implements Parcelable {
     public String eventName,event_time,event_date,user_id;
+    public GeoPoint location;
 
         public Activity() { }
 
-        public Activity(String eventName, String event_time, String event_date, String user_id) {
+        public Activity(String eventName, String event_time, String event_date, String user_id, GeoPoint location) {
             this.eventName = eventName;
             this.event_time = event_time;
             this.event_date = event_date;
             this.user_id = user_id;
+            this.location = location;
         }
 
     protected Activity(Parcel in) {
@@ -23,6 +26,9 @@ public class Activity implements Parcelable {
         event_time = in.readString();
         event_date = in.readString();
         user_id = in.readString();
+        Double lat = in.readDouble();
+        Double lng = in.readDouble();
+        location = new GeoPoint(lat, lng);
     }
 
     public static final Creator<Activity> CREATOR = new Creator<Activity>() {
@@ -69,6 +75,9 @@ public class Activity implements Parcelable {
             this.user_id = user_id;
         }
 
+    public GeoPoint getLocation() {
+        return location;
+    }
 
     @Override
     public int describeContents() {
@@ -81,6 +90,8 @@ public class Activity implements Parcelable {
         parcel.writeString(event_time);
         parcel.writeString(event_date);
         parcel.writeString(user_id);
+        parcel.writeDouble(location.getLatitude());
+        parcel.writeDouble(location.getLongitude());
     }
 
 

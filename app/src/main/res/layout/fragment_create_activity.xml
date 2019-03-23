@@ -3,17 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <!--<android.support.v7.widget.Toolbar-->
-            <!--android:id="@+id/create_activity_toolbar"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@color/colorPrimary"/>-->
+        <!--android:id="@+id/create_activity_toolbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/colorPrimary"/>-->
 
         <Space
             android:layout_height="30dp"
@@ -28,7 +28,17 @@
         <Space
             android:layout_height="30dp"
             android:layout_width="1dp" />
-        
+
+        <EditText
+            android:id="@+id/date_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="date"
+            android:focusable="false"
+            android:hint="@string/enter_date"/>
+
+        <!--LOCATION-->
         <EditText
             android:id="@+id/time_text"
             android:layout_width="match_parent"
@@ -36,9 +46,16 @@
             android:ems="10"
             android:inputType="time"
             android:focusable="false"
-            android:hint="@string/enter_date"/>
+            android:hint="@string/enter_time"/>
 
-        <!--LOCATION-->
+        <fragment
+            android:id="@+id/autocomplete_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name=
+                "com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

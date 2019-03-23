@@ -13,11 +13,12 @@ import com.example.shaym.partnear.R;
 import java.util.ArrayList;
 
 public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecyclerAdapter.ViewHolder>{
-    private ArrayList<Activity> activities = new ArrayList<>();
+    private ArrayList<Activity> activities_list = new ArrayList<>();
     private ActivityRecyclerClickListener ActivityRecyclerClickListener;
 
     public ActivityRecyclerAdapter(ArrayList<Activity> activities, ActivityRecyclerClickListener activityRecyclerClickListener) {
-        this.activities = activities;
+        activities_list.clear();
+        this.activities_list = activities;
         ActivityRecyclerClickListener = activityRecyclerClickListener;
     }
 
@@ -33,25 +34,32 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ((ViewHolder)holder).activityType.setText(activities.get(position).getActivityName());
+        (holder).eventName.setText(activities_list.get(position).getEventName());
     }
 
     @Override
     public int getItemCount() {
-        return activities.size();
+        return activities_list.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener
     {
-        TextView activityType;
+        View mView;
+        TextView eventName;
         ActivityRecyclerClickListener clickListener;
 
         public ViewHolder(View itemView, ActivityRecyclerClickListener clickListener) {
             super(itemView);
-            activityType = itemView.findViewById(R.id.activity_title);
+            mView = itemView;
+            eventName = itemView.findViewById(R.id.activity_title);
             this.clickListener = clickListener;
             itemView.setOnClickListener(this);
+        }
+
+        public void setEventName(String name){
+            eventName = mView.findViewById(R.id.activity_title);
+            eventName.setText(name);
         }
 
         @Override

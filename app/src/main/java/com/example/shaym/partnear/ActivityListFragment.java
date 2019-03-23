@@ -1,7 +1,9 @@
 package com.example.shaym.partnear;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.location.Location;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
@@ -27,6 +29,10 @@ import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
 import com.example.shaym.partnear.Logic.Activity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
@@ -34,6 +40,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -68,6 +75,8 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     private Context context;
 
+    private FusedLocationProviderClient mFusedLocationClient;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
@@ -86,12 +95,20 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
         mDb = FirebaseFirestore.getInstance();
 
+        //getActivities();
+
         initActivityRecyclerView();
 
         context = container.getContext();
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
 
 
+        return view;
+    }
+
+    private void getActivities(){
+        activities_list.clear();
         mDb.collection(getString(R.string.collection_activities)).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
@@ -105,9 +122,24 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 }
             }
         });
+    }
 
-
-        return view;
+    private void getLastKnownLocation() {
+        Log.d(TAG, "getLastKnownLocation: called.");
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    Location location = task.getResult();
+                    GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    Log.d(TAG, "onComplete: latitude: " + geoPoint.getLatitude());
+                    Log.d(TAG, "onComplete: longitude: " + geoPoint.getLongitude());
+                }
+            }
+        });
     }
 
     private boolean checkMapServices(){
@@ -153,7 +185,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            //getActivities();
+            getActivities();
         } else {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -205,7 +237,8 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
-                    //getActivities(); // if accepted the GPS dialog
+                    getActivities(); // if accepted the GPS dialog
+                    getLastKnownLocation();
                 }
                 else{
                     getLocationPermission();
@@ -225,11 +258,11 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     public void onResume() {
         super.onResume();
         setVisible();
-        //getActivities();
         if(checkMapServices()){
-            if(mLocationPermissionGranted)
-                //getActivities();
-                System.out.print("");
+            if(mLocationPermissionGranted) {
+                getActivities();
+                getLastKnownLocation();
+            }
             else
                 getLocationPermission();
         }
@@ -252,9 +285,6 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         transaction.addToBackStack(null);
         transaction.commit();
 
-        //        Intent intent = new Intent(context, ActivityActivity.class);
-//        intent.putExtra(getString(R.string.intent_activity));
-//        startActivity(intent);
     }
 
 

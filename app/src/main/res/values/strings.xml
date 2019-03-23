@@ -22,8 +22,8 @@
     <string name="database_firstName">first_name</string>
     <string name="database_age">age</string>
     <string name="database_gender">gender</string>
-    
-    
+
+
     <!-- Firestore Strings -->
     <string name="collection_users">Users</string>
     <string name="collection_activities">Activities</string>
@@ -55,8 +55,21 @@
     <string name="name_anonymous">anonymous</string>
     <string name="no_phone_number">No phone number</string>
     <string name="default_picture">default</string>
-    
+
     <string name="enter_event_name">Enter event name</string>
+    <string name="choose_location">Choose location</string>
     <string name="save_event_button">Save event</string>
     <string name="cancel_event_button">Cancel event</string>
+    <string name="enter_time">Enter time</string>
+
+
+    <!--Event Information-->
+    <string name="Activity_name">Activity name</string>
+    <string name="event_starting_time">Starting time: </string>
+    <string name="manager_name">manager name:</string>
+    <string name="manager_email">manager email:</string>
+    <string name="Manager_phone_number">Manager phone number:</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
