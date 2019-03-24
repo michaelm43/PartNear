@@ -1,7 +1,10 @@
 package com.example.shaym.partnear;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,14 +13,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.shaym.partnear.Logic.Activity;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.maps.GeoApiContext;
 
-public class ActivityDetailFragment extends Fragment {
+import static com.example.shaym.partnear.Util.Constants.MAPVIEW_BUNDLE_KEY;
+
+public class ActivityDetailFragment extends Fragment implements OnMapReadyCallback {
 
     private TextView eventName;
     private TextView eventDate;
@@ -25,15 +40,19 @@ public class ActivityDetailFragment extends Fragment {
     private TextView managerName;
     private TextView managerEmail;
     private TextView managerPhone;
+    private MapView mMapView;
+    private GoogleMap mGoogleMap;
+    private GeoPoint mUserPosition;
 
     private FirebaseFirestore mDb;
     private DatabaseReference databaseReference;
+
+    Activity activity = new Activity();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.fragment_activity_detail_fragmant, container, false);
-        Activity activity = new Activity();
 
         Bundle bundle = this.getArguments();
         if(bundle!=null){
@@ -46,6 +65,7 @@ public class ActivityDetailFragment extends Fragment {
         managerName = (TextView) view.findViewById(R.id.manager_name);
         managerEmail = (TextView) view.findViewById(R.id.manager_email);
         managerPhone = (TextView) view.findViewById(R.id.manager_phone);
+        mMapView = view.findViewById(R.id.activity_map);
 
         eventName.setText(activity.getEventName());
         eventDate.setText(activity.getEvent_date());
@@ -69,6 +89,44 @@ public class ActivityDetailFragment extends Fragment {
             }
         });
 
+        initGoogleMap(savedInstanceState);
+
         return view;
     }
+
+    private void initGoogleMap(Bundle savedInstanceState){
+        // * IMPORTANT *
+        // MapView requires that the Bundle you pass contain ONLY MapView SDK
+        // objects or sub-Bundles.
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+
+        mMapView.onCreate(mapViewBundle);
+
+        mMapView.getMapAsync(this);
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        MapsInitializer.initialize(getContext());
+        map.setMapType(map.MAP_TYPE_NORMAL);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        mGoogleMap = map;
+        LatLng latLng = new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude());
+        map.addMarker(new MarkerOptions().position(latLng)
+                .title(activity.getEventName()).snippet("Location"));
+        CameraPosition cameraPosition = CameraPosition.builder().target(latLng).zoom(100).bearing(0).build();
+
+        map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
 }

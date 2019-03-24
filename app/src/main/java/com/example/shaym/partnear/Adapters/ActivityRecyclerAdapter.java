@@ -13,6 +13,7 @@ import com.example.shaym.partnear.R;
 import java.util.ArrayList;
 
 public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecyclerAdapter.ViewHolder>{
+
     private ArrayList<Activity> activities_list = new ArrayList<>();
     private ActivityRecyclerClickListener ActivityRecyclerClickListener;
 

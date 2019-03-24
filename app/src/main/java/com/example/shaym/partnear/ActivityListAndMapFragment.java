@@ -3,8 +3,10 @@ package com.example.shaym.partnear;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
 import com.example.shaym.partnear.Logic.Activity;
@@ -38,6 +41,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -80,7 +84,10 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
     private static final int MAP_LAYOUT_STATE_CONTRACTED = 0;
     private static final int MAP_LAYOUT_STATE_EXPANDED = 1;
     private int mMapLayoutState = 0;
-    private GeoApiContext mGeoApiContext = null;
+    private GeoApiContext mGeoApiContext;
+    private ArrayList<PolylineData> mPolylinesData = new ArrayList<>();
+    private Marker mSelectedMarker = null;
+    private ArrayList<Marker> mTripMarkers = new ArrayList<>();
 
 
     public static ActivityListAndMapFragment newInstance() {
@@ -107,6 +114,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
         mMapContainer = view.findViewById(R.id.map_container);
 
         view.findViewById(R.id.btn_full_screen_map).setOnClickListener(this);
+        view.findViewById(R.id.btn_reset_map).setOnClickListener(this);
 
         initActivityRecyclerView();
         initGoogleMap(savedInstanceState);
@@ -114,13 +122,70 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
         return view;
     }
 
+    public void zoomRoute(List<LatLng> lstLatLngRoute) {
+
+        if (mGoogleMap == null || lstLatLngRoute == null || lstLatLngRoute.isEmpty()) return;
+
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+        for (LatLng latLngPoint : lstLatLngRoute)
+            boundsBuilder.include(latLngPoint);
+
+        int routePadding = 120;
+        LatLngBounds latLngBounds = boundsBuilder.build();
+
+        mGoogleMap.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding),
+                600,
+                null
+        );
+    }
+
+    private void resetMap(){
+        if(mGoogleMap != null) {
+            mGoogleMap.clear();
+
+            if(mClusterManager != null){
+                mClusterManager.clearItems();
+            }
+
+            if (mClusterMarkers.size() > 0) {
+                mClusterMarkers.clear();
+                mClusterMarkers = new ArrayList<>();
+            }
+
+            if(mPolylinesData.size() > 0){
+                mPolylinesData.clear();
+                mPolylinesData = new ArrayList<>();
+            }
+        }
+    }
+
+    private void removeTripMarkers(){
+        for (Marker marker : mTripMarkers)
+            marker.remove();
+    }
+
+    private void reserSelectedMarker(){
+        if(mSelectedMarker != null){
+            mSelectedMarker.setVisible(true);
+            mSelectedMarker = null;
+            removeTripMarkers();
+        }
+    }
 
     private void addPolylinesToMap(final DirectionsResult result){
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "run: result routes: " + result.routes.length);
+                if(mPolylinesData.size() > 0){
+                    for (PolylineData polylineData : mPolylinesData)
+                        polylineData.getPolyline().remove();
+                    mPolylinesData.clear();
+                    mPolylinesData = new ArrayList<>();
+                }
 
+                double duration = 99999999;
                 for(DirectionsRoute route: result.routes){
                     Log.d(TAG, "run: leg: " + route.legs[0].toString());
                     List<com.google.maps.model.LatLng> decodedPath = PolylineEncoding.decode(route.overviewPolyline.getEncodedPath());
@@ -140,6 +205,17 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                     Polyline polyline = mGoogleMap.addPolyline(new PolylineOptions().addAll(newDecodedPath));
                     polyline.setColor(ContextCompat.getColor(getActivity(), R.color.darkGrey));
                     polyline.setClickable(true);
+
+                    mPolylinesData.add(new PolylineData(polyline, route.legs[0]));
+
+                    double tempDuration = route.legs[0].duration.inSeconds;
+                    if(tempDuration < duration){
+                        duration = tempDuration;
+                        onPolylineClick(polyline);
+                        zoomRoute(polyline.getPoints());
+                    }
+
+                    mSelectedMarker.setVisible(false);
 
                 }
             }
@@ -187,6 +263,8 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
     private void addMapMarkers(){
 
         if(mGoogleMap != null){
+
+            resetMap();
 
             if(mClusterManager == null){
                 mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), mGoogleMap);
@@ -363,18 +441,19 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
 
     @Override
     public void onActivitySelected(int position) {
+        Log.d(TAG, "onUserClicked: selected a user: " + mActivityList.get(position).toString());
 
+        mGoogleMap.animateCamera(
+                CameraUpdateFactory.newLatLng(
+                        new LatLng(mActivityList.get(position).getLocation().getLatitude(), mActivityList.get(position).getLocation().getLongitude())),
+                600,
+                null
+        );
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-//            case R.id.fab_map:{
-//                final FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-//                transaction.replace(R.id.fragmentContainer, new ActivityListFragment());
-//                transaction.addToBackStack(null);
-//                transaction.commit();
-//            }
             case R.id.btn_full_screen_map:{
 
                 if(mMapLayoutState == MAP_LAYOUT_STATE_CONTRACTED){
@@ -385,6 +464,10 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                     mMapLayoutState = MAP_LAYOUT_STATE_CONTRACTED;
                     contractMapAnimation();
                 }
+                break;
+            }
+            case R.id.btn_reset_map:{
+                addMapMarkers();
                 break;
             }
         }
@@ -432,27 +515,83 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
 
     @Override
     public void onInfoWindowClick(final Marker marker) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(marker.getSnippet())
-                .setCancelable(true)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        calculateDirections(marker);
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+        if(marker.getTitle().contains("Trip #")){
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage("Open Google Maps?")
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            String latitude = String.valueOf(marker.getPosition().latitude);
+                            String longitude = String.valueOf(marker.getPosition().longitude);
+                            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
+                            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                            mapIntent.setPackage("com.google.android.apps.maps");
+
+                            try{
+                                if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                                    startActivity(mapIntent);
+                                }
+                            }catch (NullPointerException e){
+                                Log.e(TAG, "onClick: NullPointerException: Couldn't open map." + e.getMessage() );
+                                Toast.makeText(getActivity(), "Couldn't open map", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.show();
+        }
+        else {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(marker.getSnippet())
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            reserSelectedMarker();
+                            mSelectedMarker = marker;
+                            calculateDirections(marker);
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
     @Override
     public void onPolylineClick(Polyline polyline) {
-        polyline.setColor(ContextCompat.getColor(getActivity(), R.color.blue1));
-        polyline.setZIndex(1);
+
+        int index = 0;
+        for(PolylineData polylineData: mPolylinesData){
+            index++;
+            Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
+            if(polyline.getId().equals(polylineData.getPolyline().getId())){
+                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.blue1));
+                polylineData.getPolyline().setZIndex(1); // set blue, selected
+
+                LatLng endLocation = new LatLng(polylineData.getLeg().endLocation.lat,
+                                                polylineData.getLeg().endLocation.lng);
+                Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(endLocation)
+                                                .title("Trip #" + index)
+                                                .snippet("Duration: " + polylineData.getLeg().duration));
+                marker.showInfoWindow();
+
+                mTripMarkers.add(marker);
+            }
+            else{
+                polylineData.getPolyline().setColor(ContextCompat.getColor(getActivity(), R.color.darkGrey));
+                polylineData.getPolyline().setZIndex(0); // other ones set grey
+            }
+        }
     }
 }
