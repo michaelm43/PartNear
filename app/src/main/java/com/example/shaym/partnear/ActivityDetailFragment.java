@@ -42,7 +42,6 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
     private TextView managerPhone;
     private MapView mMapView;
     private GoogleMap mGoogleMap;
-    private GeoPoint mUserPosition;
 
     private FirebaseFirestore mDb;
     private DatabaseReference databaseReference;
@@ -110,6 +109,37 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mMapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMapView.onStop();
+    }
+
+    @Override
     public void onMapReady(GoogleMap map) {
         MapsInitializer.initialize(getContext());
         map.setMapType(map.MAP_TYPE_NORMAL);
@@ -123,10 +153,28 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
         mGoogleMap = map;
         LatLng latLng = new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude());
         map.addMarker(new MarkerOptions().position(latLng)
-                .title(activity.getEventName()).snippet("Location"));
-        CameraPosition cameraPosition = CameraPosition.builder().target(latLng).zoom(100).bearing(0).build();
+                .title(activity.getEventName()));
+        CameraPosition cameraPosition = CameraPosition.builder().target(latLng).zoom(16).bearing(0).build();
 
         map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    @Override
+    public void onPause() {
+        mMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mMapView.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
     }
 
 }
