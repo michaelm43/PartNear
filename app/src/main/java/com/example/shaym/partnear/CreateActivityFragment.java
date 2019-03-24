@@ -2,8 +2,6 @@ package com.example.shaym.partnear;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,48 +14,36 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.shaym.partnear.Logic.Activity;
 import com.example.shaym.partnear.Logic.Upload;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
-import static com.example.shaym.partnear.Util.Constants.PLACE_PICKER_REQUEST;
-
-public class CreateActivityFragment extends Fragment {
+public class CreateActivityFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "Create Activity";
 
@@ -67,6 +53,9 @@ public class CreateActivityFragment extends Fragment {
     private EditText eventDate;
     private Button saveButton;
     private Button cancelButton;
+    private Spinner spinner;
+
+    ArrayAdapter<CharSequence> adapter;
 
 
     private FirebaseAuth mAuth;
@@ -77,6 +66,7 @@ public class CreateActivityFragment extends Fragment {
 
     private Upload user;
     private String currentUserId;
+    private int eventType;
 
     private GeoPoint location;
 
@@ -90,6 +80,12 @@ public class CreateActivityFragment extends Fragment {
         eventDate = (EditText)view.findViewById(R.id.date_text);
         saveButton = (Button) view.findViewById(R.id.save_event_button);
         cancelButton = (Button) view.findViewById(R.id.cancel_event_button);
+        spinner = (Spinner) view.findViewById(R.id.types_spinner);
+
+        adapter = ArrayAdapter.createFromResource(getContext(), R.array.eventTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
 
         if (!Places.isInitialized()) {
             Places.initialize(getContext(), getString(R.string.google_api_key));
@@ -190,21 +186,6 @@ public class CreateActivityFragment extends Fragment {
         mDb = FirebaseFirestore.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
 
-        //mDatabaseRef = FirebaseDatabase.getInstance().getReference("users");
-
-        /*mDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(Upload.class);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(),databaseError.getMessage(),Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,8 +202,22 @@ public class CreateActivityFragment extends Fragment {
                     transaction.addToBackStack(null);
                     transaction.commit();
                 }
+                else{
+                    // TODO PLEASE INSERT
+                }
             }
         });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragmentContainer, new ActivityListFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
+        });
+
 
         return view;
     }
@@ -238,6 +233,7 @@ public class CreateActivityFragment extends Fragment {
         eventMap.put("eventName", eventName.getText().toString());
         eventMap.put("timestamp", FieldValue.serverTimestamp());
         eventMap.put("location", location);
+        eventMap.put("eventType", eventType);
 
         mDb.collection(getString(R.string.collection_activities)).add(eventMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
@@ -251,29 +247,16 @@ public class CreateActivityFragment extends Fragment {
                 }
             }
         });
-
-        /*FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        mDb.setFirestoreSettings(settings);
-
-        DocumentReference newActivityRef = mDb
-                .collection(getString(R.string.collection_activities))
-                .document();
+    }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        eventType = position;
+    }
 
-        newActivityRef.set(activity).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-                if(task.isSuccessful()){
-                    //navActivityActivity(activity);
-                }else{
-                    View parentLayout = getView().findViewById(android.R.id.content);
-                    Snackbar.make(parentLayout, "Something went wrong.", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });*/
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // TODO WHAT HAPPENED IF NOT SELECTED
     }
 }

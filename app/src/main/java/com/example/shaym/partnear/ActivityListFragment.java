@@ -63,7 +63,6 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     //vars
     private ArrayList<Activity> activities_list = new ArrayList<>();
-    private Set<String> activitiesIDs = new HashSet<>();
     private ActivityRecyclerAdapter activityRecyclerAdapter;
     private RecyclerView activityRecyclerView;
 
@@ -107,6 +106,10 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         return view;
     }
 
+    public void filterActivitiesByName(String newText){
+        activityRecyclerAdapter.getFilter().filter(newText);
+    }
+
     private void getActivities(){
         activities_list.clear();
         mDb.collection(getString(R.string.collection_activities)).addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -122,6 +125,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 }
             }
         });
+        Log.d(TAG, "Activities size: " + activities_list.size());
     }
 
     private void getLastKnownLocation() {
@@ -277,7 +281,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         setInvisible();
         ActivityDetailFragment fragment = new ActivityDetailFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("activity",activity);
+        bundle.putParcelable("activity" ,activity);
         fragment.setArguments(bundle);
 
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();

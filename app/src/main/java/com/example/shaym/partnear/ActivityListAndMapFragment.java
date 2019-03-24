@@ -122,6 +122,10 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
         return view;
     }
 
+    public void filterActivitiesByName(String newText){
+        mActivityRecyclerAdapter.getFilter().filter(newText);
+    }
+
     public void zoomRoute(List<LatLng> lstLatLngRoute) {
 
         if (mGoogleMap == null || lstLatLngRoute == null || lstLatLngRoute.isEmpty()) return;
@@ -260,7 +264,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
     }
 
 
-    private void addMapMarkers(){
+    public void addMapMarkers(){
 
         if(mGoogleMap != null){
 
@@ -278,13 +282,13 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
 
-            for(Activity activity: mActivityList){
+            for(Activity activity: mActivityRecyclerAdapter.getActivities_list()){
 
                 Log.d(TAG, "addMapMarkers: location: " + activity.getLocation().toString());
                 try{
                     String snippet = "Determine route to " + activity.getEventName() + "?";
 
-                    int avatar = R.drawable.activity_image; // set the default avatar
+                    int avatar = activity.getImage_id(); // set the default avatar
 //                    try{
 //                        avatar = Integer.parseInt(userLocation.getUser().getAvatar());
 //                    }catch (NumberFormatException e){

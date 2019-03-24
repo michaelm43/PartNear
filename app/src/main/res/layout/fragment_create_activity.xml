@@ -29,6 +29,15 @@
             android:layout_height="30dp"
             android:layout_width="1dp" />
 
+        <Spinner
+            android:id="@+id/types_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Space
+            android:layout_height="30dp"
+            android:layout_width="1dp" />
+
         <EditText
             android:id="@+id/date_text"
             android:layout_width="match_parent"
@@ -38,7 +47,10 @@
             android:focusable="false"
             android:hint="@string/enter_date"/>
 
-        <!--LOCATION-->
+        <Space
+            android:layout_height="30dp"
+            android:layout_width="1dp" />
+
         <EditText
             android:id="@+id/time_text"
             android:layout_width="match_parent"
@@ -47,6 +59,10 @@
             android:inputType="time"
             android:focusable="false"
             android:hint="@string/enter_time"/>
+
+        <Space
+            android:layout_height="30dp"
+            android:layout_width="1dp" />
 
         <fragment
             android:id="@+id/autocomplete_fragment"

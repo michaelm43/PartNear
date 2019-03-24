@@ -5,20 +5,23 @@ import android.os.Parcelable;
 import java.util.Date;
 import android.os.Parcel;
 
+import com.example.shaym.partnear.R;
 import com.google.firebase.firestore.GeoPoint;
 
 public class Activity implements Parcelable {
     public String eventName,event_time,event_date,user_id;
     public GeoPoint location;
+    public int eventType, image_id;
 
         public Activity() { }
 
-        public Activity(String eventName, String event_time, String event_date, String user_id, GeoPoint location) {
+        public Activity(String eventName, String event_time, String event_date, String user_id, GeoPoint location, int eventType) {
             this.eventName = eventName;
             this.event_time = event_time;
             this.event_date = event_date;
             this.user_id = user_id;
             this.location = location;
+            this.eventType = eventType;
         }
 
     protected Activity(Parcel in) {
@@ -29,6 +32,7 @@ public class Activity implements Parcelable {
         Double lat = in.readDouble();
         Double lng = in.readDouble();
         location = new GeoPoint(lat, lng);
+        eventType = in.readInt();
     }
 
     public static final Creator<Activity> CREATOR = new Creator<Activity>() {
@@ -75,6 +79,40 @@ public class Activity implements Parcelable {
             this.user_id = user_id;
         }
 
+    public int getEventType() {
+        return eventType;
+    }
+
+    public int getImage_id() {
+        switch(eventType){
+            case 0:{
+                image_id = R.drawable.football_image;
+                break;
+            }
+            case 1:{
+                image_id = R.drawable.basketball_image;
+                break;
+            }
+            case 2:{
+                image_id = R.drawable.dance_image;
+                break;
+            }
+            case 3:{
+                image_id = R.drawable.sing_image;
+                break;
+            }
+            case 4:{
+                image_id = R.drawable.study_image;
+                break;
+            }
+            case 5:{
+                image_id = R.drawable.gaming_image;
+                break;
+            }
+        }
+        return image_id;
+    }
+
     public GeoPoint getLocation() {
         return location;
     }
@@ -92,132 +130,7 @@ public class Activity implements Parcelable {
         parcel.writeString(user_id);
         parcel.writeDouble(location.getLatitude());
         parcel.writeDouble(location.getLongitude());
+        parcel.writeInt(eventType);
     }
 
-
-
-
-
- /*   private String activityName;
-    private String activityID;
-    private Upload manager;
-    private User[] participants;
-
-    private int slots;
-    private String startTime;       //TODO change to Date?
-    private Date endTime;
-    private String location;
-
-    public Activity(String activityName, Upload manager, String startTime) {
-        this.activityName = activityName;
-//        this.activityID = activityID;
-        this.manager = manager;
-        this.participants = new User[slots];
-//        this.slots = slots;
-        this.startTime = startTime;
-//        this.location = location;
-    }
-
-//    public Activity(String activityName) {
-//        this.activityName = activityName;
-//    }
-
-    protected Activity(Parcel in) {
-        this.activityName = in.readString();
-        this.activityID = in.readString();
-    }
-
-
-    public static final Creator<Activity> CREATOR = new Creator<Activity>() {
-        @Override
-        public Activity createFromParcel(Parcel in) {
-            return new Activity(in);
-        }
-
-        @Override
-        public Activity[] newArray(int size) {
-            return new Activity[size];
-        }
-    };
-
-    public void setSlots(int slots) {
-        this.slots = slots;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getActivityName() {
-        return activityName;
-    }
-
-    public Upload getManager() {
-        return manager;
-    }
-
-    public User[] getParticipants() {
-        return participants;
-    }
-
-    public int getSlots() {
-        return slots;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public String getActivityID() {
-        return activityID;
-    }
-
-    public void setActivityID(String activityID) {
-        this.activityID = activityID;
-    }
-
-    public boolean addParticipant(User user) {
-        if(this.slots > 0)
-        {
-            this.participants[this.participants.length-this.slots] = user;
-            return true;
-        }
-        return false;
-    }
-
-    public boolean removeParticipant(User user) {
-        for (int i = 0; i < this.participants.length; i++){
-            if(this.participants[i].getUserID() == user.getUserID())
-            {
-                this.participants[i] = null;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "title='" + this.activityName + '\'' +
-                ", activity_id='" + this.activityID + '\'' +
-                '}';
-    }
-
-    @Override
-    public int describeContents() { return 0; }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.activityName);
-        dest.writeString(this.activityID);
-    }*/
 }

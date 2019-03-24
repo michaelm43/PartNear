@@ -70,6 +70,12 @@
     <string name="manager_email">manager email:</string>
     <string name="Manager_phone_number">Manager phone number:</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="eventTypes">
+        <item>Football</item>
+        <item>Basketball</item>
+        <item>Dance</item>
+        <item>Sing</item>
+        <item>Study</item>
+        <item>Gaming</item>
+    </string-array>
 </resources>
