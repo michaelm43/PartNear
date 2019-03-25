@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.shaym.partnear.Util.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.example.shaym.partnear.Util.Constants.intent_activity_list;
 
 public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener,
         ActivityRecyclerAdapter.ActivityRecyclerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnPolylineClickListener {
@@ -99,7 +100,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mActivityList = getArguments().getParcelableArrayList(getString(R.string.intent_activity_list));
+            mActivityList = getArguments().getParcelableArrayList(intent_activity_list);
         }
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         getLastKnownLocation();
@@ -345,8 +346,8 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                 if (task.isSuccessful()) {
                     Location location = task.getResult();
                     mUserPosition = new GeoPoint(location.getLatitude(), location.getLongitude());
-                    Log.d("LALA", "onComplete: latitude: " + mUserPosition.getLatitude());
-                    Log.d("LALA", "onComplete: longitude: " + mUserPosition.getLongitude());
+                    Log.d(TAG, "onComplete: latitude: " + mUserPosition.getLatitude());
+                    Log.d(TAG, "onComplete: longitude: " + mUserPosition.getLongitude());
                 }
             }
         });
@@ -519,11 +520,11 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
 
     @Override
     public void onInfoWindowClick(final Marker marker) {
-        if(marker.getTitle().contains("Trip #")){
+        if(marker.getTitle().contains(getString(R.string.trip))){
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Open Google Maps?")
+            builder.setMessage(R.string.open_google_maps)
                     .setCancelable(true)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             String latitude = String.valueOf(marker.getPosition().latitude);
                             String longitude = String.valueOf(marker.getPosition().longitude);
@@ -537,12 +538,12 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                                 }
                             }catch (NullPointerException e){
                                 Log.e(TAG, "onClick: NullPointerException: Couldn't open map." + e.getMessage() );
-                                Toast.makeText(getActivity(), "Couldn't open map", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), R.string.error_map, Toast.LENGTH_SHORT).show();
                             }
 
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             dialog.cancel();
                         }
@@ -554,7 +555,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setMessage(marker.getSnippet())
                     .setCancelable(true)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             reserSelectedMarker();
                             mSelectedMarker = marker;
@@ -562,7 +563,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                             dialog.dismiss();
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             dialog.cancel();
                         }
@@ -586,8 +587,8 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                 LatLng endLocation = new LatLng(polylineData.getLeg().endLocation.lat,
                                                 polylineData.getLeg().endLocation.lng);
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions().position(endLocation)
-                                                .title("Trip #" + index)
-                                                .snippet("Duration: " + polylineData.getLeg().duration));
+                                                .title(getString(R.string.trip) + index)
+                                                .snippet(getString(R.string.duration) + polylineData.getLeg().duration));
                 marker.showInfoWindow();
 
                 mTripMarkers.add(marker);

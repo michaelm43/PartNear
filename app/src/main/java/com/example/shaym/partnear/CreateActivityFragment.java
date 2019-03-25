@@ -43,6 +43,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.shaym.partnear.Util.Constants.collection_activities;
+
 public class CreateActivityFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "Create Activity";
@@ -235,12 +237,12 @@ public class CreateActivityFragment extends Fragment implements AdapterView.OnIt
         eventMap.put("location", location);
         eventMap.put("eventType", eventType);
 
-        mDb.collection(getString(R.string.collection_activities)).add(eventMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+        mDb.collection(collection_activities).add(eventMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
 
                 if(task.isSuccessful()){
-                    Toast.makeText(getContext(),"activity has added successfully",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),R.string.activity_success,Toast.LENGTH_LONG).show();
                 }
                 else{
                     Toast.makeText(getContext(),task.getException().getMessage(),Toast.LENGTH_LONG).show();

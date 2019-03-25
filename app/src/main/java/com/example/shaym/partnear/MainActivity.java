@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean onQueryTextChange(String newText) {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
         if(currentFragment instanceof ActivityListFragment) {
-            ((ActivityListFragment) currentFragment).filterActivitiesByName(newText);
+            ((ActivityListFragment) currentFragment).filterActivities(newText);
         }
         if(currentFragment instanceof ActivityListAndMapFragment) {
             ((ActivityListAndMapFragment) currentFragment).filterActivitiesByName(newText);

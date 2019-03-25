@@ -1,16 +1,21 @@
 package com.example.shaym.partnear.Adapters;
 
+import android.content.Intent;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.shaym.partnear.Logic.Activity;
 import com.example.shaym.partnear.R;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
@@ -19,7 +24,10 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
     private ArrayList<Activity> activities_list;
     private ArrayList<Activity> activities_list_full;
     private ActivityRecyclerClickListener ActivityRecyclerClickListener;
+    private Location userLocation;
+
     int counter = 0;
+    View view;
 
     public ActivityRecyclerAdapter(ArrayList<Activity> activities, ActivityRecyclerClickListener activityRecyclerClickListener) {
         this.activities_list = activities;
@@ -31,7 +39,7 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_acivity_list_item, parent, false);
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_acivity_list_item, parent, false);
         final ViewHolder holder = new ViewHolder(view, ActivityRecyclerClickListener);
 
         return holder;
@@ -39,7 +47,17 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        (holder).eventName.setText(activities_list.get(position).getEventName());
+        Activity activity = activities_list.get(position);
+        (holder).eventName.setText(activity.getEventName());
+        String type = view.getResources().getStringArray(R.array.eventTypes)[activity.getEventType()];
+        (holder).eventType.setText(type);
+        Location tmp = new Location("");
+        tmp.setLatitude(activity.getLocation().getLatitude());
+        tmp.setLongitude(activity.getLocation().getLongitude());
+        if(userLocation != null)
+            (holder).distance.setText(userLocation.distanceTo(tmp)/1000 + "km");
+        (holder).eventImage.setImageResource(activity.getImage_id());
+
     }
 
     @Override
@@ -52,19 +70,21 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
     {
         View mView;
         TextView eventName;
+        TextView eventType;
+        TextView distance;
+        ImageView eventImage;
+
         ActivityRecyclerClickListener clickListener;
 
         public ViewHolder(View itemView, ActivityRecyclerClickListener clickListener) {
             super(itemView);
             mView = itemView;
             eventName = itemView.findViewById(R.id.activity_title);
+            eventType = itemView.findViewById(R.id.activity_type);
+            distance = itemView.findViewById(R.id.activity_distance);
+            eventImage = itemView.findViewById(R.id.activity_image);
             this.clickListener = clickListener;
             itemView.setOnClickListener(this);
-        }
-
-        public void setEventName(String name){
-            eventName = mView.findViewById(R.id.activity_title);
-            eventName.setText(name);
         }
 
         @Override
@@ -94,10 +114,19 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
             if(constraint == null || constraint.length() == 0)
                 filteredList.addAll(activities_list_full);
             else {
-                String filterPattern = constraint.toString().toLowerCase().trim();
-                for(Activity activity : activities_list_full){
-                    if(activity.getEventName().toLowerCase().contains(filterPattern))
-                        filteredList.add(activity);
+                String str = constraint.toString();
+                if(str.matches("[0-9]+") && str.length() <= 2){
+                    for(Activity activity : activities_list_full){
+                        if(activity.getEventType() == Integer.parseInt(str))
+                            filteredList.add(activity);
+                    }
+                }
+                else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+                    for (Activity activity : activities_list_full) {
+                        if (activity.getEventName().toLowerCase().contains(filterPattern))
+                            filteredList.add(activity);
+                    }
                 }
             }
             FilterResults results = new FilterResults();
@@ -117,10 +146,8 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
         return activities_list;
     }
 
+    public void setUserLocation(Location userLocation) {
+        this.userLocation = userLocation;
+    }
 
-//    public void updateList(ArrayList<Activity> newList){
-//        activities_list.clear();
-//        activities_list.addAll(newList);
-//        notifyDataSetChanged();
-//    }
 }

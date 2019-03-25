@@ -22,7 +22,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.shaym.partnear.Adapters.ActivityRecyclerAdapter;
@@ -46,25 +49,32 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.example.shaym.partnear.Util.Constants.ACTIVITY_KEY;
 import static com.example.shaym.partnear.Util.Constants.ERROR_DIALOG_REQUEST;
 import static com.example.shaym.partnear.Util.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.example.shaym.partnear.Util.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
+import static com.example.shaym.partnear.Util.Constants.collection_activities;
+import static com.example.shaym.partnear.Util.Constants.intent_activity_list;
 
 public class ActivityListFragment extends Fragment  implements View.OnClickListener,
-    ActivityRecyclerAdapter.ActivityRecyclerClickListener {
+    ActivityRecyclerAdapter.ActivityRecyclerClickListener, Spinner.OnItemSelectedListener {
 
     private static final String TAG = "ActivityListFragment";
 
     //widgets
-    private ProgressBar mProgressBar;
+    private Spinner mSpinner;
 
     //vars
     private ArrayList<Activity> activities_list = new ArrayList<>();
     private ActivityRecyclerAdapter activityRecyclerAdapter;
     private RecyclerView activityRecyclerView;
+    ArrayAdapter<CharSequence> adapter;
+    Location userLocation;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mDb;
@@ -85,38 +95,64 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
         activityRecyclerView = (RecyclerView) view.findViewById(R.id.activities_recycler_view);
 
-        mProgressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        mSpinner = (Spinner) view.findViewById(R.id.types_spinner);
+        adapter = ArrayAdapter.createFromResource(getContext(), R.array.eventTypes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(adapter);
+        mSpinner.setOnItemSelectedListener(this);
 
         getActivity().findViewById(R.id.fab_create_activity).setOnClickListener(this);       //Create activity button
-
 
         getActivity().findViewById(R.id.fab_map).setOnClickListener(this);              //Open map button
 
         mDb = FirebaseFirestore.getInstance();
 
-        //getActivities();
-
-        initActivityRecyclerView();
-
         context = container.getContext();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
 
+        getLastKnownLocation();
+
+        initActivityRecyclerView();
 
         return view;
     }
 
-    public void filterActivitiesByName(String newText){
-        activityRecyclerAdapter.getFilter().filter(newText);
+//    private void sortArrayList(){
+//        Collections.sort(activities_list, new Comparator<Activity>() {
+//            @Override
+//            public int compare(Activity a1, Activity a2) {
+//                Location tmp = new Location("");
+//                tmp.setLatitude(a1.getLocation().getLatitude());
+//                tmp.setLongitude(a1.getLocation().getLongitude());
+//                float distance1 = userLocation.distanceTo(tmp)/1000;
+//                tmp.setLatitude(a2.getLocation().getLatitude());
+//                tmp.setLongitude(a2.getLocation().getLongitude());
+//                float distance2 =userLocation.distanceTo(tmp)/1000;
+//                if(distance1 > distance2)
+//                    return 1;
+//                if(distance1 == distance2)
+//                        return 0;
+//                return -1;
+//            }
+//        });
+//    }
+
+    public void filterActivities(String newText){
+        if(!newText.equals("0")) {
+            activityRecyclerAdapter.getFilter().filter(newText);
+            if(!newText.matches("[0-9]+"))
+                mSpinner.setSelection(0);
+        }
     }
 
     private void getActivities(){
         activities_list.clear();
-        mDb.collection(getString(R.string.collection_activities)).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mDb.collection(collection_activities).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                    if(doc.getType() == DocumentChange.Type.ADDED){//TODO fix dont do it every time or clean before?
+                    if(doc.getType() == DocumentChange.Type.ADDED){
                         Activity activity = doc.getDocument().toObject(Activity.class);
                         activities_list.add(activity);
 
@@ -137,8 +173,9 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
-                    Location location = task.getResult();
-                    GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    userLocation = task.getResult();
+                    activityRecyclerAdapter.setUserLocation(userLocation);
+                    GeoPoint geoPoint = new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude());
                     Log.d(TAG, "onComplete: latitude: " + geoPoint.getLatitude());
                     Log.d(TAG, "onComplete: longitude: " + geoPoint.getLongitude());
                 }
@@ -157,9 +194,9 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     private void buildAlertMessageNoGps() { // Show a dialog to enable GPS
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
+        builder.setMessage(R.string.enable_gps)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
@@ -213,7 +250,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), available, ERROR_DIALOG_REQUEST);
             dialog.show();
         }else{
-            Toast.makeText(context, "You can't make map requests", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.cant_map, Toast.LENGTH_SHORT).show();
         }
         return false;
     }
@@ -256,6 +293,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         activityRecyclerAdapter = new ActivityRecyclerAdapter(activities_list, this);
         activityRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         activityRecyclerView.setAdapter(activityRecyclerAdapter);
+        Log.d(TAG, "onComplete IN INIT ADAPTER");
     }
 
     @Override
@@ -281,7 +319,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         setInvisible();
         ActivityDetailFragment fragment = new ActivityDetailFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("activity" ,activity);
+        bundle.putParcelable(ACTIVITY_KEY ,activity);
         fragment.setArguments(bundle);
 
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
@@ -289,15 +327,6 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         transaction.addToBackStack(null);
         transaction.commit();
 
-    }
-
-
-    private void showDialog(){
-        mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    private void hideDialog(){
-        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -334,16 +363,26 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
                 setInvisible();
                 ActivityListAndMapFragment fragment = ActivityListAndMapFragment.newInstance();
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList(getString(R.string.intent_activity_list), activities_list);
+                bundle.putParcelableArrayList(intent_activity_list, activities_list);
                 fragment.setArguments(bundle);
 
                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_up, R.anim.slide_out_up);
-                transaction.replace(R.id.fragmentContainer, fragment, getString(R.string.fragment_activity_list));
-                transaction.addToBackStack(getString(R.string.fragment_activity_list));
+                transaction.replace(R.id.fragmentContainer, fragment);
+                transaction.addToBackStack(null);
                 transaction.commit();
                 break;
             }
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        filterActivities(position + "");
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

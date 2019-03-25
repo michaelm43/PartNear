@@ -17,38 +17,7 @@
     <string name="enter_last_name">Enter last name</string>
     <string name="enter_first_name">Enter first name</string>
 
-    <!-- Database registration-->
-    <string name="database_lastName">last_name</string>
-    <string name="database_firstName">first_name</string>
-    <string name="database_age">age</string>
-    <string name="database_gender">gender</string>
-
-
-    <!-- Firestore Strings -->
-    <string name="collection_users">Users</string>
-    <string name="collection_activities">Activities</string>
-    <string name="collection_chat_messages">Chat Messages</string>
-    <string name="collection_chatroom_user_list">User List</string>
-    <string name="collection_user_locations">User Locations</string>
-
-    <!-- Intent extras -->
-    <string name="intent_activity">intent_activity</string>
-    <string name="intent_activity_list">intent_activity_list</string>
-    <string name="intent_user_locations">intent_user_locations</string>
-    <string name="intent_location">intent_location</string>
-
-    <!-- Service and Broadcasts -->
-    <string name="gps_location">gps_location</string>
-
-
-    <!-- Fragments Names -->
-    <string name="fragment_activity_list">Activity List</string>
-    <string name="fragment_image_list">Image List</string>
-
     <!-- Other Strings -->
-    <string name="action_create_chatroom">Create Chatroom</string>
-    <string name="action_leave_chatroom">Leave chatroom</string>
-    <string name="action_chatroom_user_list">User list</string>
     <string name="action_profile">Profile</string>
     <string name="name">Name:</string>
     <string name="phone_number">Phone number:</string>
@@ -61,16 +30,32 @@
     <string name="save_event_button">Save event</string>
     <string name="cancel_event_button">Cancel event</string>
     <string name="enter_time">Enter time</string>
+    <string name="activity_success">Activity has been added successfully</string>
+    <string name="enable_gps">This application requires GPS to work properly, do you want to enable it?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cant_map">You cant make map requests</string>
+    <string name="trip">Trip #</string>
+    <string name="duration">Duration: </string>
+    <string name="open_google_maps">Open Google Maps?</string>
+    <string name="error_map">Couldnt open map</string>
+    <string name="error">Error: </string>
+    <string name="error_confirm">The confirm password and the password are not match</string>
+    <string name="upload_success">Upload successful</string>
+    <string name="no_file">No file selected</string>
+    <string name="acc_setup">Account Setup</string>
+    <string name="perm_denied">Permission Denied</string>
 
 
     <!--Event Information-->
     <string name="Activity_name">Activity name</string>
     <string name="event_starting_time">Starting time: </string>
-    <string name="manager_name">manager name:</string>
-    <string name="manager_email">manager email:</string>
+    <string name="manager_name">Manager name:</string>
+    <string name="manager_email">Manager email:</string>
     <string name="Manager_phone_number">Manager phone number:</string>
 
     <string-array name="eventTypes">
+        <item>Choose Type!</item>
         <item>Football</item>
         <item>Basketball</item>
         <item>Dance</item>

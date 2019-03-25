@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.shaym.partnear.Logic.Activity;
@@ -30,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.maps.GeoApiContext;
 
+import static com.example.shaym.partnear.Util.Constants.ACTIVITY_KEY;
 import static com.example.shaym.partnear.Util.Constants.MAPVIEW_BUNDLE_KEY;
 
 public class ActivityDetailFragment extends Fragment implements OnMapReadyCallback {
@@ -42,6 +46,7 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
     private TextView managerPhone;
     private MapView mMapView;
     private GoogleMap mGoogleMap;
+    ImageView imageView;
 
     private FirebaseFirestore mDb;
     private DatabaseReference databaseReference;
@@ -55,7 +60,7 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
 
         Bundle bundle = this.getArguments();
         if(bundle!=null){
-            activity = bundle.getParcelable("activity");
+            activity = bundle.getParcelable(ACTIVITY_KEY);
         }
 
         eventName = (TextView) view.findViewById(R.id.event_title);
@@ -65,6 +70,9 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
         managerEmail = (TextView) view.findViewById(R.id.manager_email);
         managerPhone = (TextView) view.findViewById(R.id.manager_phone);
         mMapView = view.findViewById(R.id.activity_map);
+        imageView = view.findViewById(R.id.image_background);
+        imageView.setBackgroundResource(activity.getImage_id());
+        imageView.setAlpha(0.4f);
 
         eventName.setText(activity.getEventName());
         eventDate.setText(activity.getEvent_date());

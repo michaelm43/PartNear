@@ -55,6 +55,8 @@ import java.net.URI;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.example.shaym.partnear.Util.Constants.collection_users;
+
 
 public class SetupActivity extends AppCompatActivity {
 
@@ -86,10 +88,10 @@ public class SetupActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         user_id = mAuth.getCurrentUser().getUid();
         mStorage = FirebaseStorage.getInstance().getReference();
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+        mDatabase = FirebaseDatabase.getInstance().getReference().child(collection_users);
 
         setSupportActionBar(setupToolbar);
-        getSupportActionBar().setTitle("Account Setup");
+        getSupportActionBar().setTitle(R.string.acc_setup);
 
         saveButton = findViewById(R.id.button_save);
         setupProgress = findViewById(R.id.setup_progressbar);
@@ -102,20 +104,14 @@ public class SetupActivity extends AppCompatActivity {
 
                     if(ContextCompat.checkSelfPermission(SetupActivity.this , Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
 
-                        Toast.makeText(SetupActivity.this,"Permission Denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SetupActivity.this,R.string.perm_denied, Toast.LENGTH_LONG).show();
                         ActivityCompat.requestPermissions(SetupActivity.this ,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
                     }
-                    else{
+                    else {
 
-                        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(intent,SELECTED_PIC);
+                        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(intent, SELECTED_PIC);
                     }
-/*                    else
-                        CropImage.activity()
-                                .setGuidelines(CropImageView.Guidelines.ON)
-                                .start(SetupActivity.this);
-                    }*/
-
             }
         });
 
@@ -126,12 +122,6 @@ public class SetupActivity extends AppCompatActivity {
 
             }
         });
-
-        /*mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null) {*/
-
 
             mDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -147,7 +137,6 @@ public class SetupActivity extends AppCompatActivity {
                         placeholderRequest.placeholder(R.drawable.default_profile_picture);
 
                         Glide.with(SetupActivity.this).setDefaultRequestOptions(placeholderRequest).load(imageUrl).into(imageProfile);
-
                     }
                 }
 
@@ -156,11 +145,6 @@ public class SetupActivity extends AppCompatActivity {
 
                 }
             });
-
-//                }
-//            }
-//        };
-
     }
 
     @Override
@@ -170,17 +154,6 @@ public class SetupActivity extends AppCompatActivity {
         if(requestCode ==SELECTED_PIC && resultCode == RESULT_OK && data != null && data.getData()!= null) {
             mainImageURI = data.getData();
             Glide.with(this).load(mainImageURI).into(imageProfile);
-
-
-            /* String[] projection = {MediaStore.Images.Media.DATA};
-            Cursor cursor = getContentResolver().query(mainImageURI,projection,null,null,null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(projection[0]);
-            String filepath = cursor.getString(columnIndex);
-
-            Bitmap bitmap = BitmapFactory.decodeFile(filepath);
-            Drawable drawable = new BitmapDrawable(bitmap);
-            imageProfile.setImageDrawable(drawable);*/
         }
     }
 
@@ -209,13 +182,10 @@ public class SetupActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if(task.isSuccessful()){
 
-                            Toast.makeText(SetupActivity.this,"Upload successful",Toast.LENGTH_LONG).show();
+                            Toast.makeText(SetupActivity.this,R.string.upload_success ,Toast.LENGTH_LONG).show();
                             Uri downloadUri = task.getResult();
 
                             mDatabase.child(mAuth.getCurrentUser().getUid()).child("avatar").setValue(downloadUri.toString());
-//                        Upload upload = new Upload(user_id.toString().trim(),taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
-//                        String uploadId = mDatabase.push().getKey();
-//                        mDatabase.child(uploadId).setValue(upload);
 
                         }
                     }
@@ -225,7 +195,7 @@ public class SetupActivity extends AppCompatActivity {
 
         }
         else{
-            Toast.makeText(this,"No file selected", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.no_file, Toast.LENGTH_LONG).show();
         }
     }
 }

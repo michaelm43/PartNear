@@ -31,6 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 
+import static com.example.shaym.partnear.Util.Constants.collection_users;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etAge;
@@ -149,26 +151,14 @@ public class RegisterActivity extends AppCompatActivity {
                             String phoneNumber = etPhone.getText().toString().trim();
                             String date = etAge.getText().toString().trim();
 
-
                             //save reg info in database
                             mAuth.signInWithEmailAndPassword(email,pass);
 
-                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(collection_users);
                             DatabaseReference currentUserDB = mDatabase.child(mAuth.getCurrentUser().getUid());
-
-                            //do all in string!
-                           /* currentUserDB.child("name").setValue(fName + " " + lName);
-                            currentUserDB.child("age").setValue(date);
-                            currentUserDB.child("gender").setValue(radionGenderButton.getText());
-                            currentUserDB.child("image").setValue("default");
-                            currentUserDB.child("phone").setValue(phoneNumber);*/
 
                             Upload upload = new Upload(fName +" " + lName,email,phoneNumber,date,radionGenderButton.getText().toString());
                             currentUserDB.setValue(upload);
-
-                            /*User user = new User((fName + " " + lName), email , email ,phoneNumber,"default",radionGenderButton.getText().toString());
-                            String uploadId = mDatabase.push().getKey();
-                            mDatabase.child(uploadId).setValue(user);*/
 
                             Intent setupIntent = new Intent(RegisterActivity.this,SetupActivity.class);
                             RegisterActivity.this.startActivity(setupIntent);
@@ -178,7 +168,7 @@ public class RegisterActivity extends AppCompatActivity {
                         else{
 
                             String errorMessage = task.getException().getMessage();
-                            Toast.makeText(RegisterActivity.this,"Error : "+ errorMessage ,Toast.LENGTH_LONG).show();
+                            Toast.makeText(RegisterActivity.this,R.string.error + errorMessage ,Toast.LENGTH_LONG).show();
                         }
                         regProgress.setVisibility(View.INVISIBLE);
                     }
@@ -187,7 +177,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
             else{
 
-                Toast.makeText(RegisterActivity.this,"The confirm password and the password are not match",Toast.LENGTH_LONG).show();
+                Toast.makeText(RegisterActivity.this,R.string.error_confirm ,Toast.LENGTH_LONG).show();
             }
         }
     }

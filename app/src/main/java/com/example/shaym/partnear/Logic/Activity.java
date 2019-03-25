@@ -11,7 +11,7 @@ import com.google.firebase.firestore.GeoPoint;
 public class Activity implements Parcelable {
     public String eventName,event_time,event_date,user_id;
     public GeoPoint location;
-    public int eventType, image_id;
+    public int eventType;
 
         public Activity() { }
 
@@ -85,32 +85,20 @@ public class Activity implements Parcelable {
 
     public int getImage_id() {
         switch(eventType){
-            case 0:{
-                image_id = R.drawable.football_image;
-                break;
-            }
-            case 1:{
-                image_id = R.drawable.basketball_image;
-                break;
-            }
-            case 2:{
-                image_id = R.drawable.dance_image;
-                break;
-            }
-            case 3:{
-                image_id = R.drawable.sing_image;
-                break;
-            }
-            case 4:{
-                image_id = R.drawable.study_image;
-                break;
-            }
-            case 5:{
-                image_id = R.drawable.gaming_image;
-                break;
-            }
+            case 1:
+                return R.drawable.football_image;
+            case 2:
+                return R.drawable.basketball_image;
+            case 3:
+                return R.drawable.dance_image;
+            case 4:
+                return R.drawable.sing_image;
+            case 5:
+                return R.drawable.study_image;
+            case 6:
+                return R.drawable.gaming_image;
         }
-        return image_id;
+        return R.drawable.activity_image;
     }
 
     public GeoPoint getLocation() {
