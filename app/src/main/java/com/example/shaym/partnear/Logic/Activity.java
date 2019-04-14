@@ -51,32 +51,12 @@ public class Activity implements Parcelable {
             return eventName;
         }
 
-        public void setEventName(String eventName) {
-            this.eventName = eventName;
-        }
-
         public String getEvent_time() {
             return event_time;
         }
 
-        public void setEvent_time(String event_time) {
-            this.event_time = event_time;
-        }
-
         public String getEvent_date() {
             return event_date;
-        }
-
-        public void setEvent_date(String event_date) {
-            this.event_date = event_date;
-        }
-
-        public String getUser_id() {
-            return user_id;
-        }
-
-        public void setUser_id(String user_id) {
-            this.user_id = user_id;
         }
 
     public int getEventType() {

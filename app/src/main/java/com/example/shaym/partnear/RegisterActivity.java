@@ -15,17 +15,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Switch;
 import android.widget.Toast;
-
-import com.example.shaym.partnear.Logic.Upload;
 import com.example.shaym.partnear.Logic.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -151,19 +147,24 @@ public class RegisterActivity extends AppCompatActivity {
                             String phoneNumber = etPhone.getText().toString().trim();
                             String date = etAge.getText().toString().trim();
 
-                            //save reg info in database
-                            mAuth.signInWithEmailAndPassword(email,pass);
+                            if(!TextUtils.isEmpty(fName) && !TextUtils.isEmpty(lName) && !TextUtils.isEmpty(phoneNumber) && !TextUtils.isEmpty(date)) {
 
-                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(collection_users);
-                            DatabaseReference currentUserDB = mDatabase.child(mAuth.getCurrentUser().getUid());
+                                //save reg info in database
+                                mAuth.signInWithEmailAndPassword(email, pass);
 
-                            Upload upload = new Upload(fName +" " + lName,email,phoneNumber,date,radionGenderButton.getText().toString());
-                            currentUserDB.setValue(upload);
+                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(collection_users);
+                                DatabaseReference currentUserDB = mDatabase.child(mAuth.getCurrentUser().getUid());
 
-                            Intent setupIntent = new Intent(RegisterActivity.this,SetupActivity.class);
-                            RegisterActivity.this.startActivity(setupIntent);
+                                User user = new User(fName + " " + lName, email, phoneNumber, date, radionGenderButton.getText().toString());
+                                currentUserDB.setValue(user);
 
-                            finish();
+                                Intent setupIntent = new Intent(RegisterActivity.this, SetupActivity.class);
+                                RegisterActivity.this.startActivity(setupIntent);
+
+                                finish();
+                            }
+                            else
+                                Toast.makeText(RegisterActivity.this, R.string.register_fail ,Toast.LENGTH_LONG).show();
                         }
                         else{
 
@@ -176,9 +177,10 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
             else{
-
                 Toast.makeText(RegisterActivity.this,R.string.error_confirm ,Toast.LENGTH_LONG).show();
             }
         }
+        else
+            Toast.makeText(RegisterActivity.this, R.string.register_fail ,Toast.LENGTH_LONG).show();
     }
 }

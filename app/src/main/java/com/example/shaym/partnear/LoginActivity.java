@@ -67,11 +67,12 @@ public class LoginActivity extends AppCompatActivity {
                             logginProgress.setVisibility(View.INVISIBLE);
                         }
                     });
-
+                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                    LoginActivity.this.startActivity(intent);
                 }
 
-                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                LoginActivity.this.startActivity(intent);
+                else
+                    Toast.makeText(LoginActivity.this, R.string.login_fail ,Toast.LENGTH_LONG).show();
             }
         });
 

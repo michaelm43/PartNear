@@ -4,15 +4,8 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -22,23 +15,15 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.theartofdev.edmodo.cropper.CropImage;
-//import com.theartofdev.edmodo.cropper.CropImageView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.shaym.partnear.Logic.Upload;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -47,14 +32,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.net.URI;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.example.shaym.partnear.Util.Constants.AVATAR;
+import static com.example.shaym.partnear.Util.Constants.NAME;
+import static com.example.shaym.partnear.Util.Constants.PHONE;
+import static com.example.shaym.partnear.Util.Constants.PROFILE_PICTURE;
 import static com.example.shaym.partnear.Util.Constants.collection_users;
 
 
@@ -66,13 +52,13 @@ public class SetupActivity extends AppCompatActivity {
     private Button saveButton;
     private TextView tvName;
     private TextView tvPhone;
+    private TextView textView;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private StorageReference mStorage;
     private DatabaseReference mDatabase;
     private String user_id;
-    private ProgressBar setupProgress;
 
 
     @Override
@@ -84,6 +70,7 @@ public class SetupActivity extends AppCompatActivity {
         Toolbar setupToolbar = findViewById(R.id.setup_toolbar);
         tvName = findViewById(R.id.tv_name);
         tvPhone = findViewById(R.id.tv_phone);
+        textView = findViewById(R.id.textview);
 
         mAuth = FirebaseAuth.getInstance();
         user_id = mAuth.getCurrentUser().getUid();
@@ -94,7 +81,6 @@ public class SetupActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.acc_setup);
 
         saveButton = findViewById(R.id.button_save);
-        setupProgress = findViewById(R.id.setup_progressbar);
         imageProfile = findViewById(R.id.setup_image);
 
         imageProfile.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +97,7 @@ public class SetupActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                         startActivityForResult(intent, SELECTED_PIC);
+                        textView.setVisibility(View.VISIBLE);
                     }
             }
         });
@@ -126,13 +113,13 @@ public class SetupActivity extends AppCompatActivity {
             mDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String name = String.valueOf(dataSnapshot.child("name").getValue());
+                    String name = String.valueOf(dataSnapshot.child(NAME).getValue());
 
                     tvName.setText(name);
-                    tvPhone.setText(String.valueOf(dataSnapshot.child("phone").getValue()));
+                    tvPhone.setText(String.valueOf(dataSnapshot.child(PHONE).getValue()));
 
-                    String imageUrl = String.valueOf(dataSnapshot.child("avatar").getValue());
-                    if(!mDatabase.child(mAuth.getCurrentUser().getUid()).child("avatar").toString().equals("default")) {
+                    String imageUrl = String.valueOf(dataSnapshot.child(AVATAR).getValue());
+                    if(!mDatabase.child(mAuth.getCurrentUser().getUid()).child(AVATAR).toString().equals("default")) {
                         RequestOptions placeholderRequest = new RequestOptions();
                         placeholderRequest.placeholder(R.drawable.default_profile_picture);
 
@@ -165,7 +152,7 @@ public class SetupActivity extends AppCompatActivity {
 
     private void uploadFile(){
         if(mainImageURI !=null){
-            final StorageReference image_path = mStorage.child("profile_picture").child(mAuth.getCurrentUser().getEmail()+"." + getFileExtension(mainImageURI));
+            final StorageReference image_path = mStorage.child(PROFILE_PICTURE).child(mAuth.getCurrentUser().getEmail()+"." + getFileExtension(mainImageURI));
 
         image_path.putFile(mainImageURI).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
@@ -185,7 +172,7 @@ public class SetupActivity extends AppCompatActivity {
                             Toast.makeText(SetupActivity.this,R.string.upload_success ,Toast.LENGTH_LONG).show();
                             Uri downloadUri = task.getResult();
 
-                            mDatabase.child(mAuth.getCurrentUser().getUid()).child("avatar").setValue(downloadUri.toString());
+                            mDatabase.child(mAuth.getCurrentUser().getUid()).child(AVATAR).setValue(downloadUri.toString());
 
                         }
                     }

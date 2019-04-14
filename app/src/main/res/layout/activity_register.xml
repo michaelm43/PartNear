@@ -1,118 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp"
+    android:paddingTop="10dp"
+    android:background="@color/blue1">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
-
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
-            <EditText
-                android:id="@+id/etFName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/enter_first_name"
-                android:layout_weight="1"
-                android:layout_gravity="" />
-            <EditText
-                android:id="@+id/etLName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/enter_last_name"
-                android:layout_weight="1"
-                android:layout_gravity="center"/>
-        </LinearLayout>
+            android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/image_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/register_image"
+                android:alpha="0.4"/>
 
-            <RadioGroup
-                android:id="@+id/radio_gender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <RadioButton
-                    android:id="@+id/radioMale"
-                    android:layout_width="wrap_content"
+            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:elevation="50dp"
+                android:paddingLeft="30dp"
+                android:paddingTop="15dp"
+                android:paddingRight="30dp"
+                android:paddingBottom="15dp"
+                card_view:cardBackgroundColor="@color/halfTrans"
+                card_view:cardCornerRadius="10dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/radio_male"
-                    android:checked="true" />
+                    android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/radioFemale"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/radio_female" />
-            </RadioGroup>
-        </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000"
+                        android:text="@string/register"
+                        android:textSize="30dp"
+                        android:layout_margin="15dp"
+                        android:layout_gravity="center"/>
 
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_email"
-            android:layout_gravity="center" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="10dp">
+                        <EditText
+                            android:id="@+id/etFName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_first_name"
+                            android:layout_weight="1"
+                            android:layout_gravity="" />
+                        <EditText
+                            android:id="@+id/etLName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_last_name"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"/>
+                    </LinearLayout>
 
-        <EditText
-            android:id="@+id/etPSW1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="@string/enter_password"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10dp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/etPSW2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="@string/repeat_password"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10dp" />
+                        <RadioGroup
+                            android:id="@+id/radio_gender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <RadioButton
+                                android:id="@+id/radioMale"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/radio_male"
+                                android:checked="true" />
 
-        <EditText
-            android:id="@+id/etDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/enter_date"
-            android:inputType="date"
-            android:focusable="false"/>
-        <EditText
-            android:id="@+id/etPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="phone"
-            android:hint="@string/enter_phone_number"/>
+                            <RadioButton
+                                android:id="@+id/radioFemale"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/radio_female" />
+                        </RadioGroup>
+                    </LinearLayout>
 
-        <Button
+                    <EditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/enter_email"
+                        android:layout_gravity="center" />
+
+                    <EditText
+                        android:id="@+id/etPSW1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:hint="@string/enter_password"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp" />
+
+                    <EditText
+                        android:id="@+id/etPSW2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:hint="@string/repeat_password"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="10dp" />
+
+                    <EditText
+                        android:id="@+id/etDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/enter_date"
+                        android:inputType="date"
+                        android:focusable="false"/>
+                    <EditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="@string/enter_phone_number"/>
+
+                    <Button
+                        android:id="@+id/bRegister"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="register" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
+        <ProgressBar
+            android:id="@+id/reg_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="register"
-            android:id="@+id/bRegister"
-            android:layout_gravity="right"/>
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="invisible"/>
     </LinearLayout>
-    <ProgressBar
-        android:id="@+id/reg_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="invisible"/>
-</FrameLayout>
+</ScrollView>

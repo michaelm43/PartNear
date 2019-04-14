@@ -1,87 +1,71 @@
 package com.example.shaym.partnear.Logic;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-public class User implements Parcelable {
+public class User {
     private String name;
     private String email;
-    private String userID;
     private String phone;
     private String avatar;
-    private int age;
+    private String date;
     private String gender;
 
-
     public User(){
-        //empty constructor
+        //empty c'tor
     }
 
-    public User(String name, String email,String userID ,String phone, String avatar,String gender) {
+    public User(String name,String email,String phone,String date,String gender){
         this.name = name;
         this.email = email;
-        this.userID = userID;
         this.phone = phone;
-        this.avatar = avatar;
+        this.date = date;
         this.gender = gender;
+        this.avatar = "default";
     }
 
-    protected User(Parcel in) {
-        name = in.readString();
-        email = in.readString();
-        userID = in.readString();
-        phone = in.readString();
-        avatar = in.readString();
-        gender = in.readString();
+    public String getName(){
+        return this.name;
     }
 
-    public static final Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel in) {
-            return new User(in);
-        }
+    public void setName(String name){
+        this.name = name;
+    }
 
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
+    public String getAvatar(){
+        return this.avatar;
+    }
 
-    public String getName() {
-        return name;
+    public void setAvatar(String avatar ){
+        this.avatar = avatar;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getUserID() {
-        return userID;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public String getGender() { return gender; }
-
-    public void setAvatar(String avatar) { this.avatar = avatar; }
-
-
-    @Override
-    public int describeContents() { return 0; }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(email);
-        //dest.writeString(userID);
-        dest.writeString(phone);
-        dest.writeString(avatar);
-        dest.writeString(gender);
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

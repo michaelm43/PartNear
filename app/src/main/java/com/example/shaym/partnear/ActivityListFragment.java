@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -49,6 +50,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -68,13 +70,15 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
     //widgets
     private Spinner mSpinner;
+    private ImageButton mImageButton;
 
     //vars
     private ArrayList<Activity> activities_list = new ArrayList<>();
     private ActivityRecyclerAdapter activityRecyclerAdapter;
     private RecyclerView activityRecyclerView;
-    ArrayAdapter<CharSequence> adapter;
-    Location userLocation;
+    private ArrayAdapter<CharSequence> adapter; // for spinner
+    private Location userLocation;
+
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mDb;
@@ -85,6 +89,8 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     private Context context;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private int counter = 0;
 
 
     @Override
@@ -100,6 +106,14 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
         mSpinner.setOnItemSelectedListener(this);
+
+        mImageButton = view.findViewById(R.id.btn_refresh);
+        mImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filterActivities("");
+            }
+        });
 
         getActivity().findViewById(R.id.fab_create_activity).setOnClickListener(this);       //Create activity button
 
@@ -118,26 +132,6 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         return view;
     }
 
-//    private void sortArrayList(){
-//        Collections.sort(activities_list, new Comparator<Activity>() {
-//            @Override
-//            public int compare(Activity a1, Activity a2) {
-//                Location tmp = new Location("");
-//                tmp.setLatitude(a1.getLocation().getLatitude());
-//                tmp.setLongitude(a1.getLocation().getLongitude());
-//                float distance1 = userLocation.distanceTo(tmp)/1000;
-//                tmp.setLatitude(a2.getLocation().getLatitude());
-//                tmp.setLongitude(a2.getLocation().getLongitude());
-//                float distance2 =userLocation.distanceTo(tmp)/1000;
-//                if(distance1 > distance2)
-//                    return 1;
-//                if(distance1 == distance2)
-//                        return 0;
-//                return -1;
-//            }
-//        });
-//    }
-
     public void filterActivities(String newText){
         if(!newText.equals("0")) {
             activityRecyclerAdapter.getFilter().filter(newText);
@@ -151,12 +145,14 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
         mDb.collection(collection_activities).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                for(DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()){
-                    if(doc.getType() == DocumentChange.Type.ADDED){
-                        Activity activity = doc.getDocument().toObject(Activity.class);
-                        activities_list.add(activity);
+                if (queryDocumentSnapshots != null) {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            Activity activity = doc.getDocument().toObject(Activity.class);
+                            activities_list.add(activity);
 
-                        activityRecyclerAdapter.notifyDataSetChanged();
+                            activityRecyclerAdapter.notifyDataSetChanged();
+                        }
                     }
                 }
             }
@@ -311,6 +307,103 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        int hours,minutes,year,month,day;
+        Calendar calendar = Calendar.getInstance();
+
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH)+1;
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        hours = calendar.get(Calendar.HOUR_OF_DAY);
+        minutes = calendar.get(Calendar.MINUTE);
+
+        FirebaseFirestore deleteDb;
+        deleteDb = FirebaseFirestore.getInstance();
+
+        mDb.collection(collection_activities).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if(queryDocumentSnapshots != null) {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        if (doc.getType() == DocumentChange.Type.ADDED) {
+                            Activity activity = doc.getDocument().toObject(Activity.class);
+
+                            String[] dateParts = activity.event_date.split("/");
+                            String[] timeParts = activity.event_time.split(":");
+
+                            System.out.println("year:" + year + "-" + Integer.parseInt(dateParts[2]));
+                            System.out.println("month:" + month + "-" + Integer.parseInt(dateParts[1]));
+                            System.out.println("day:" + day + "-" + Integer.parseInt(dateParts[0]));
+                            System.out.println("hours:" + hours + "-" + Integer.parseInt(timeParts[0]));
+                            System.out.println("minute:" + minutes + "-" + Integer.parseInt(timeParts[1]));
+
+                            if (year > Integer.parseInt(dateParts[2])) {        //check all dates field
+                                deleteActivity(deleteDb, doc, '1');
+                                System.out.println("1 if");
+                            } else {
+                                System.out.println("1 else");
+                                if (month > Integer.parseInt(dateParts[1])
+                                        && year == Integer.parseInt(dateParts[2])) {
+                                    deleteActivity(deleteDb, doc, '2');
+                                    System.out.println("2 if");
+                                } else {
+                                    System.out.println("2 else");
+                                    if (day > Integer.parseInt(dateParts[0])
+                                            && year == Integer.parseInt(dateParts[2])
+                                            && month == Integer.parseInt(dateParts[1])) {
+                                        deleteActivity(deleteDb, doc, '3');
+                                        System.out.println("3 if");
+                                    } else {
+                                        System.out.println("3 else");
+                                        if (hours > Integer.parseInt(timeParts[0])
+                                                && year == Integer.parseInt(dateParts[2])
+                                                && month == Integer.parseInt(dateParts[1])
+                                                && day == Integer.parseInt(dateParts[0])) {
+                                            deleteActivity(deleteDb, doc, '4');
+                                            System.out.println("4 if");
+                                        } else {
+                                            System.out.println("4 else");
+                                            if (minutes > Integer.parseInt(timeParts[1])
+                                                    && year == Integer.parseInt(dateParts[2])
+                                                    && month == Integer.parseInt(dateParts[1])
+                                                    && day == Integer.parseInt(dateParts[0])
+                                                    && hours == Integer.parseInt(timeParts[0])) {
+                                                System.out.println("TASK IS TO OLD");
+                                                System.out.println(doc.getDocument().getId());
+                                                deleteActivity(deleteDb, doc, '5');
+                                                System.out.println("5 if");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        });
+    }
+
+    public void deleteActivity(FirebaseFirestore deleteDb,DocumentChange doc,char ch){
+        System.out.println("the char is "+ ch);
+        deleteDb.collection(collection_activities)
+                .document(doc.getDocument().getId())
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            System.out.println("deleted task");
+                        } else
+                            System.out.println("deleted task");
+                    }
+                });
+    }
+
+
+    @Override
     public void onActivitySelected(int position) {
         navActivityActivity(activities_list.get(position));
     }
@@ -345,6 +438,10 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
     public void setVisible(){
         getActivity().findViewById(R.id.fab_create_activity).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.fab_map).setVisibility(View.VISIBLE);
+        if(counter > 0){
+            getActivity().findViewById(R.id.activity_search).setVisibility(View.VISIBLE);
+        }
+        counter++;
     }
 
     @Override
@@ -353,6 +450,7 @@ public class ActivityListFragment extends Fragment  implements View.OnClickListe
 
             case R.id.fab_create_activity:{
                 setInvisible();
+                getActivity().findViewById(R.id.activity_search).setVisibility(View.INVISIBLE);
                 FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
                 transaction.replace(R.id.fragmentContainer, new CreateActivityFragment());
                 transaction.addToBackStack(null);

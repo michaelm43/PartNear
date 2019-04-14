@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.shaym.partnear.Logic.Activity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,8 +35,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.maps.GeoApiContext;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static com.example.shaym.partnear.Util.Constants.ACTIVITY_KEY;
+import static com.example.shaym.partnear.Util.Constants.AVATAR;
+import static com.example.shaym.partnear.Util.Constants.EMAIL;
 import static com.example.shaym.partnear.Util.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.example.shaym.partnear.Util.Constants.NAME;
+import static com.example.shaym.partnear.Util.Constants.PHONE;
+import static com.example.shaym.partnear.Util.Constants.collection_users;
 
 public class ActivityDetailFragment extends Fragment implements OnMapReadyCallback {
 
@@ -46,7 +55,8 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
     private TextView managerPhone;
     private MapView mMapView;
     private GoogleMap mGoogleMap;
-    ImageView imageView;
+    private ImageView imageView;
+    private CircleImageView imageProfile;
 
     private FirebaseFirestore mDb;
     private DatabaseReference databaseReference;
@@ -74,20 +84,25 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
         imageView.setBackgroundResource(activity.getImage_id());
         imageView.setAlpha(0.4f);
 
+        imageProfile = view.findViewById(R.id.manager_image);
+        RequestOptions placeholderRequest = new RequestOptions();
+        placeholderRequest.placeholder(R.drawable.default_profile_picture);
+
         eventName.setText(activity.getEventName());
         eventDate.setText(activity.getEvent_date());
         eventTime.setText(activity.getEvent_time());
 
 
         mDb = FirebaseFirestore.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child(collection_users);
         //Get Event manager information
         databaseReference.child(activity.user_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                managerName.setText(String.valueOf(dataSnapshot.child("name").getValue()));
-                managerEmail.setText(String.valueOf(dataSnapshot.child("email").getValue()));
-                managerPhone.setText(String.valueOf(dataSnapshot.child("phone").getValue()));
+                managerName.setText(String.valueOf(dataSnapshot.child(NAME).getValue()));
+                managerEmail.setText(String.valueOf(dataSnapshot.child(EMAIL).getValue()));
+                managerPhone.setText(String.valueOf(dataSnapshot.child(PHONE).getValue()));
+                Glide.with(getActivity()).setDefaultRequestOptions(placeholderRequest).load(String.valueOf(dataSnapshot.child(AVATAR).getValue())).into(imageProfile);
             }
 
             @Override
@@ -159,12 +174,14 @@ public class ActivityDetailFragment extends Fragment implements OnMapReadyCallba
         }
         map.setMyLocationEnabled(true);
         mGoogleMap = map;
-        LatLng latLng = new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude());
-        map.addMarker(new MarkerOptions().position(latLng)
-                .title(activity.getEventName()));
-        CameraPosition cameraPosition = CameraPosition.builder().target(latLng).zoom(16).bearing(0).build();
+        if(activity.getLocation() != null) {
+            LatLng latLng = new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude());
+            map.addMarker(new MarkerOptions().position(latLng)
+                    .title(activity.getEventName()));
+            CameraPosition cameraPosition = CameraPosition.builder().target(latLng).zoom(16).bearing(0).build();
 
-        map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Override

@@ -13,6 +13,11 @@ public class Constants {
     //Firestore Strings
     public static final String collection_activities = "Activities";
     public static final String collection_users = "users";
+    public static final String NAME = "name";
+    public static final String EMAIL = "email";
+    public static final String PHONE = "phone";
+    public static final String AVATAR = "avatar";
+    public static final String PROFILE_PICTURE = "profile_picture";
 
     //Intent extras
     public static final String intent_activity_list = "intent_activity_list";

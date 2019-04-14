@@ -170,7 +170,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
             marker.remove();
     }
 
-    private void reserSelectedMarker(){
+    private void resetSelectedMarker(){
         if(mSelectedMarker != null){
             mSelectedMarker.setVisible(true);
             mSelectedMarker = null;
@@ -199,8 +199,6 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
 
                     // This loops through all the LatLng coordinates of ONE polyline.
                     for(com.google.maps.model.LatLng latLng: decodedPath){
-
-//                        Log.d(TAG, "run: latlng: " + latLng.toString());
 
                         newDecodedPath.add(new LatLng(
                                 latLng.lat,
@@ -283,36 +281,33 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
 
-            for(Activity activity: mActivityRecyclerAdapter.getActivities_list()){
+            for(Activity activity: mActivityRecyclerAdapter.getActivities_list()) {
 
-                Log.d(TAG, "addMapMarkers: location: " + activity.getLocation().toString());
-                try{
-                    String snippet = "Determine route to " + activity.getEventName() + "?";
+                if (activity.getLocation() != null) {
+                    Log.d(TAG, "addMapMarkers: location: " + activity.getLocation().toString());
+                    try {
+                        String snippet = "Determine route to " + activity.getEventName() + "?";
 
-                    int avatar = activity.getImage_id(); // set the default avatar
-//                    try{
-//                        avatar = Integer.parseInt(userLocation.getUser().getAvatar());
-//                    }catch (NumberFormatException e){
-//                        Log.d(TAG, "addMapMarkers: no avatar for " + userLocation.getUser().getUsername() + ", setting default.");
-//                    }
-                    ClusterMarker newClusterMarker = new ClusterMarker(
-                            new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude()),
-                            activity.getEventName(),
-                            snippet,
-                            avatar,
-                            activity
-                    );
-                    mClusterManager.addItem(newClusterMarker);
-                    mClusterMarkers.add(newClusterMarker);
+                        int avatar = activity.getImage_id(); // set the default avatar
+                        ClusterMarker newClusterMarker = new ClusterMarker(
+                                new LatLng(activity.getLocation().getLatitude(), activity.getLocation().getLongitude()),
+                                activity.getEventName(),
+                                snippet,
+                                avatar,
+                                activity
+                        );
+                        mClusterManager.addItem(newClusterMarker);
+                        mClusterMarkers.add(newClusterMarker);
 
-                }catch (NullPointerException e){
-                    Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage());
+                    }
+
                 }
+                mClusterManager.cluster();
 
+                setCameraView();
             }
-            mClusterManager.cluster();
-
-            setCameraView();
         }
     }
 
@@ -557,7 +552,7 @@ public class ActivityListAndMapFragment extends Fragment implements OnMapReadyCa
                     .setCancelable(true)
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            reserSelectedMarker();
+                            resetSelectedMarker();
                             mSelectedMarker = marker;
                             calculateDirections(marker);
                             dialog.dismiss();

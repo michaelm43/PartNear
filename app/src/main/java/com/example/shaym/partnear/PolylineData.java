@@ -17,16 +17,8 @@ public class PolylineData {
         return polyline;
     }
 
-    public void setPolyline(Polyline polyline) {
-        this.polyline = polyline;
-    }
-
     public DirectionsLeg getLeg() {
         return leg;
-    }
-
-    public void setLeg(DirectionsLeg leg) {
-        this.leg = leg;
     }
 
     @Override

@@ -13,7 +13,6 @@ import android.support.v7.widget.SearchView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 

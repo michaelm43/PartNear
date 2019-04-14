@@ -52,8 +52,10 @@ public class ActivityRecyclerAdapter extends RecyclerView.Adapter<ActivityRecycl
         String type = view.getResources().getStringArray(R.array.eventTypes)[activity.getEventType()];
         (holder).eventType.setText(type);
         Location tmp = new Location("");
-        tmp.setLatitude(activity.getLocation().getLatitude());
-        tmp.setLongitude(activity.getLocation().getLongitude());
+        if(activity.getLocation() != null) {
+            tmp.setLatitude(activity.getLocation().getLatitude());
+            tmp.setLongitude(activity.getLocation().getLongitude());
+        }
         if(userLocation != null)
             (holder).distance.setText(userLocation.distanceTo(tmp)/1000 + "km");
         (holder).eventImage.setImageResource(activity.getImage_id());

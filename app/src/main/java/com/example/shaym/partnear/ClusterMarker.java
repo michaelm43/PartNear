@@ -29,17 +29,9 @@ public class ClusterMarker implements ClusterItem {
         return position;
     }
 
-    public void setPosition(LatLng position) {
-        this.position = position;
-    }
-
     @Override
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     @Override
@@ -47,23 +39,8 @@ public class ClusterMarker implements ClusterItem {
         return snippet;
     }
 
-    public void setSnippet(String snippet) {
-        this.snippet = snippet;
-    }
-
     public int getIconPicture() {
         return iconPicture;
     }
 
-    public void setIconPicture(int iconPicture) {
-        this.iconPicture = iconPicture;
-    }
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
-    }
 }

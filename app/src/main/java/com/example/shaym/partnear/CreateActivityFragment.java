@@ -19,12 +19,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.shaym.partnear.Logic.Activity;
-import com.example.shaym.partnear.Logic.Upload;
+import com.example.shaym.partnear.Logic.User;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.Places;
@@ -66,7 +66,6 @@ public class CreateActivityFragment extends Fragment implements AdapterView.OnIt
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
 
-    private Upload user;
     private String currentUserId;
     private int eventType;
 
@@ -126,10 +125,6 @@ public class CreateActivityFragment extends Fragment implements AdapterView.OnIt
                         android.R.style.Theme_Holo_Light_Dialog_MinWidth,
                         mDateSetListener,
                         year,month,day);
-                        /*CreateActivityFragment.this,
-                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                        mDateSetListener,
-                        year,month,day);*/
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
@@ -194,9 +189,9 @@ public class CreateActivityFragment extends Fragment implements AdapterView.OnIt
             public void onClick(View view) {
                 String activityName = eventName.getText().toString();
                 String activityDate = eventDate.getText().toString();
+                String activityTime = eventTime.getText().toString();
 
-                if(!TextUtils.isEmpty(activityName) || !TextUtils.isEmpty(activityDate)){
-                    //final Activity activity = new Activity(activityName,user ,activityDate);
+                if(!TextUtils.isEmpty(activityName) && !TextUtils.isEmpty(activityDate) && !TextUtils.isEmpty(activityTime) && eventType != 0 && location != null){
 
                     buildNewActivity();
                     FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
@@ -205,7 +200,7 @@ public class CreateActivityFragment extends Fragment implements AdapterView.OnIt
                     transaction.commit();
                 }
                 else{
-                    // TODO PLEASE INSERT
+                    Toast.makeText(getContext(),R.string.activity_fail,Toast.LENGTH_LONG).show();
                 }
             }
         });
