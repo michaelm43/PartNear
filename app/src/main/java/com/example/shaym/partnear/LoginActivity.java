@@ -1,9 +1,9 @@
 package com.example.shaym.partnear;
 
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -61,17 +61,18 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             else{
                                 String errorMessage = task.getException().getMessage();
-                                Toast.makeText(LoginActivity.this,"Error : "+ errorMessage,Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this,R.string.error + errorMessage,Toast.LENGTH_LONG).show();
 
                             }
                             logginProgress.setVisibility(View.INVISIBLE);
                         }
                     });
-
+                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                    LoginActivity.this.startActivity(intent);
                 }
 
-                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                LoginActivity.this.startActivity(intent);
+                else
+                    Toast.makeText(LoginActivity.this, R.string.login_fail ,Toast.LENGTH_LONG).show();
             }
         });
 

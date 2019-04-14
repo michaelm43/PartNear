@@ -1,22 +1,33 @@
 package com.example.shaym.partnear;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Switch;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
-
+import com.example.shaym.partnear.Logic.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Calendar;
+
+import static com.example.shaym.partnear.Util.Constants.collection_users;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -24,11 +35,15 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etEmail;
     private EditText etFName;
     private EditText etLname;
-    private Switch sGender;
+    private RadioGroup radioGenderGroup;
+    private RadioButton radionGenderButton;
     private EditText etPSW1;
     private EditText etPSW2;
+    private EditText etPhone;
     private Button bRegister;
     private ProgressBar regProgress;
+
+    private DatePickerDialog.OnDateSetListener mDateSetListener;
 
     private FirebaseAuth mAuth;
 
@@ -43,7 +58,9 @@ public class RegisterActivity extends AppCompatActivity {
         etEmail = (EditText) findViewById(R.id.etEmail);
         etFName = (EditText) findViewById(R.id.etFName);
         etLname = (EditText) findViewById(R.id.etLName);
-        sGender = (Switch) findViewById(R.id.sGender);
+        radioGenderGroup = (RadioGroup) findViewById(R.id.radio_gender);
+        etPhone = (EditText) findViewById(R.id.etPhone);
+
         etPSW1 = (EditText) findViewById(R.id.etPSW1);
         etPSW2 = (EditText) findViewById(R.id.etPSW2);
 
@@ -53,44 +70,39 @@ public class RegisterActivity extends AppCompatActivity {
         bRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                String email = etEmail.getText().toString();
-                String pass = etPSW1.getText().toString();
-                String confirmPass = etPSW2.getText().toString();
-
-                if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(pass) && !TextUtils.isEmpty(confirmPass)){
-
-                    if(pass.equals(confirmPass)){
-
-                        regProgress.setVisibility(View.VISIBLE);
-                        mAuth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if(task.isSuccessful()){
-
-                                    Intent setupIntent = new Intent(RegisterActivity.this,SetupActivity.class);
-                                    RegisterActivity.this.startActivity(setupIntent);
-
-                                    finish();
-                                }
-                                else{
-
-                                    String errorMessage = task.getException().getMessage();
-                                    Toast.makeText(RegisterActivity.this,"Error : "+ errorMessage ,Toast.LENGTH_LONG).show();
-                                }
-                                regProgress.setVisibility(View.INVISIBLE);
-                            }
-                        });
-
-                    }
-                    else{
-
-                        Toast.makeText(RegisterActivity.this,"The confirm password and the password are not match",Toast.LENGTH_LONG).show();
-                    }
-                }
+                startRegister();
             }
         });
+
+        etAge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar calander = Calendar.getInstance();
+                int year = calander.get(calander.YEAR);
+                int month = calander.get(calander.MONTH);
+                int day = calander.get(calander.DAY_OF_MONTH);
+
+                DatePickerDialog dialog = new DatePickerDialog(
+                        RegisterActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mDateSetListener,
+                        year,month,day);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                month = month + 1;
+
+                String date = day + "/" + month + "/" +year;
+                etAge.setText(date);
+            }
+        };
     }
+
 
     @Override
     protected void onStart() {
@@ -106,5 +118,69 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
         RegisterActivity.this.startActivity(intent);
         finish();
+    }
+
+
+
+    //method that take care of registration!
+    private void startRegister() {
+
+        final String email = etEmail.getText().toString();
+        final String pass = etPSW1.getText().toString();
+        String confirmPass = etPSW2.getText().toString();
+
+        int selectedRadioId = radioGenderGroup.getCheckedRadioButtonId();
+        radionGenderButton = (RadioButton)findViewById(selectedRadioId);
+
+        if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(pass) && !TextUtils.isEmpty(confirmPass)){
+
+            if(pass.equals(confirmPass)){
+
+                regProgress.setVisibility(View.VISIBLE);
+                mAuth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+
+                            String fName = etFName.getText().toString().trim();
+                            String lName = etLname.getText().toString().trim();
+                            String phoneNumber = etPhone.getText().toString().trim();
+                            String date = etAge.getText().toString().trim();
+
+                            if(!TextUtils.isEmpty(fName) && !TextUtils.isEmpty(lName) && !TextUtils.isEmpty(phoneNumber) && !TextUtils.isEmpty(date)) {
+
+                                //save reg info in database
+                                mAuth.signInWithEmailAndPassword(email, pass);
+
+                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(collection_users);
+                                DatabaseReference currentUserDB = mDatabase.child(mAuth.getCurrentUser().getUid());
+
+                                User user = new User(fName + " " + lName, email, phoneNumber, date, radionGenderButton.getText().toString());
+                                currentUserDB.setValue(user);
+
+                                Intent setupIntent = new Intent(RegisterActivity.this, SetupActivity.class);
+                                RegisterActivity.this.startActivity(setupIntent);
+
+                                finish();
+                            }
+                            else
+                                Toast.makeText(RegisterActivity.this, R.string.register_fail ,Toast.LENGTH_LONG).show();
+                        }
+                        else{
+
+                            String errorMessage = task.getException().getMessage();
+                            Toast.makeText(RegisterActivity.this,R.string.error + errorMessage ,Toast.LENGTH_LONG).show();
+                        }
+                        regProgress.setVisibility(View.INVISIBLE);
+                    }
+                });
+
+            }
+            else{
+                Toast.makeText(RegisterActivity.this,R.string.error_confirm ,Toast.LENGTH_LONG).show();
+            }
+        }
+        else
+            Toast.makeText(RegisterActivity.this, R.string.register_fail ,Toast.LENGTH_LONG).show();
     }
 }

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "403156736619",
+    "firebase_url": "https://partnearshaymichael.firebaseio.com",
+    "project_id": "partnearshaymichael",
+    "storage_bucket": "partnearshaymichael.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:403156736619:android:2d7f6bfdb1b59015",
+        "android_client_info": {
+          "package_name": "com.example.shaym.partnear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "403156736619-a5komth5e7ndd1h370ko2jmqlgmlrc0h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shaym.partnear",
+            "certificate_hash": "f3a68a67dd227bba5d0683e149d33e084f2a3894"
+          }
+        },
+        {
+          "client_id": "403156736619-24iqlkj25mq6mlj7n1lf7uj3v0cdjvvn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrUI17ZnSZUb6xUWmVgxrY_30OGjdNllU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "403156736619-24iqlkj25mq6mlj7n1lf7uj3v0cdjvvn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

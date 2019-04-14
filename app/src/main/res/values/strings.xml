@@ -1,6 +1,84 @@
 <resources>
+    <string name="google_maps_api_key">AIzaSyCVj49KxUMf3QeBssn1zrLxE3oTAQ-OKR4</string>
+    <string name="PARTNEAR">PARTNEAR</string>
+
+
     <string name="app_name">PartNear</string>
     <string name="action_search_text">Search</string>
     <string name="action_settings_text">Account Settings</string>
     <string name="action_logout_text">Logout</string>
+    <string name="dont_have_account">dont have an account?</string>
+
+    <!-- Register strings -->
+    <string name="radio_male">Male</string>
+    <string name="radio_female">Female</string>
+    <string name="enter_phone_number">Enter phone number</string>
+    <string name="enter_date">Enter date</string>
+    <string name="enter_password">Enter password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="enter_email">Email</string>
+    <string name="enter_last_name">Enter last name</string>
+    <string name="enter_first_name">Enter first name</string>
+    <string name="register">Register</string>
+    <string name="register_fail">Please fill all the information to register</string>
+    <string name="login_fail">Please fill email and password to login</string>
+
+    <!-- Other Strings -->
+    <string name="action_profile">Profile</string>
+    <string name="name">Name:</string>
+    <string name="phone_number">Phone number:</string>
+    <string name="name_anonymous">anonymous</string>
+    <string name="no_phone_number">No phone number</string>
+    <string name="default_picture">default</string>
+    <string name="wait">Photo is uploading, wait 5 seconds</string>
+
+    <string name="enter_event_name">Enter event name</string>
+    <string name="choose_location">Choose location</string>
+    <string name="save_event_button">Save event</string>
+    <string name="cancel_event_button">Cancel event</string>
+    <string name="enter_time">Enter time</string>
+    <string name="activity_success">Activity has been added successfully</string>
+    <string name="activity_fail">Please fill all the information</string>
+    <string name="enable_gps">This application requires GPS to work properly, do you want to enable it?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cant_map">You cant make map requests</string>
+    <string name="trip">Trip #</string>
+    <string name="duration">Duration: </string>
+    <string name="open_google_maps">Open Google Maps?</string>
+    <string name="error_map">Couldnt open map</string>
+    <string name="error">Error: </string>
+    <string name="error_confirm">The confirm password and the password are not match</string>
+    <string name="upload_success">Upload successful</string>
+    <string name="no_file">No file selected</string>
+    <string name="acc_setup">Account Setup</string>
+    <string name="perm_denied">Permission Denied</string>
+
+    <string name="save_changes">Save changes</string>
+
+    <!-- Create strings -->
+    <string name="create_event">Create new event</string>
+    <string name="event_name">Event name</string>
+    <string name="type_of_event">Type of event</string>
+    <string name="event_date">Event date</string>
+    <string name="event_time">Event time</string>
+    <string name="event_location">Event location</string>
+
+
+    <!--Event Information-->
+    <string name="Activity_name">Activity name</string>
+    <string name="event_starting_time">Starting time: </string>
+    <string name="manager_name">Manager name:</string>
+    <string name="manager_email">Manager email:</string>
+    <string name="Manager_phone_number">Manager phone number:</string>
+
+    <string-array name="eventTypes">
+        <item>Choose Type!</item>
+        <item>Football</item>
+        <item>Basketball</item>
+        <item>Dance</item>
+        <item>Sing</item>
+        <item>Study</item>
+        <item>Gaming</item>
+    </string-array>
 </resources>
